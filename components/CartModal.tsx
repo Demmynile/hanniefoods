@@ -1,0 +1,100 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { X, Trash2, Plus, Minus } from "lucide-react";
+import { useCartStore, selectCartTotal } from "@/store/cart";
+import { useCartUIStore } from "@/store/cartUI";
+
+export function CartModal() {
+  const isOpen = useCartUIStore((state) => state.isOpen);
+  const closeCart = useCartUIStore((state) => state.close);
+  const items = useCartStore((state) => state.items);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const clear = useCartStore((state) => state.clear);
+
+  const total = selectCartTotal(items);
+
+  return (
+    <>
+      {/* Modal Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 transition"
+          onClick={closeCart}
+        />
+      )}
+
+      {/* Cart Drawer */}
+      <div
+        className={`fixed right-0 top-0 z-50 h-screen w-full transform transition duration-300 ease-in-out sm:w-96 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex h-full flex-col bg-white shadow-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-stone-200/70 px-6 py-4">
+            <h2 className="text-lg font-semibold text-stone-900">Shopping Cart</h2>
+            <button
+              onClick={closeCart}
+              className="rounded-lg p-1 transition hover:bg-stone-100"
+            >
+              <X size={20} className="text-stone-600" />
+            </button>
+          </div>
+
+          {/* Items */}
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            {items.length === 0 ? (
+              <p className="text-center text-stone-500">Your cart is empty</p>
+            ) : (
+              <div className="space-y-4">
+                {items.map((item) => (
+                  <div
+                    key={item.product.id}
+                    className="flex gap-4 rounded-lg border border-stone-200/70 bg-white/50 p-3"
+                  >
+                    {/* Image */}
+                    <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-stone-100">
+                      {item.product.images?.[0] ? (
+                        <Image
+                          src={item.product.images[0]}
+                          alt={item.product.title}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-stone-400">
+                          No image
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex flex-1 flex-col gap-2">
+                      <Link
+                        href={`/product/${item.product.id}`}
+                        onClick={closeCart}
+                        className="text-sm font-semibold text-stone-900 hover:text-amber-700 transition"
+                      >
+                        {item.product.title}
+                      </Link>
+                      <span className="text-xs text-stone-500">${item.product.price}</span>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.product.id, Math.max(1, item.quantity - 1))
+                          }
+                          className="rounded p-1 transition hover:bg-stone-200"
+                        >
+                          <Minus size={14} className="text-stone-600" />
+                        </button>
+                        <span className="min-w-8 text-center text-sm font-semibold text-stone-900">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.produc
