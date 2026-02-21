@@ -1,19 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getProducts } from "@/lib/products";
+import { getProducts, getProductsNoCache } from "@/lib/products";
 
 export default async function handler(
-  _request: NextApiRequest,
+  request: NextApiRequest,
   response: NextApiResponse
 ) {
-  // Cache for 2 hours on CDN and 1 minute in browser
-  response.setHeader(
-    "Cache-Control",
-    "public, s-maxage=7200, stale-while-revalidate=172800, max-age=60, immutable"
-  );
-  response.setHeader("ETag", `"products-v1"`);
+  // Check if this is a cache-bypass request (has timestamp query param)
+  const bypassCache = request.query.t !== undefined;
+  
+  if (bypassCache) {
+    // No caching for fresh data requests
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  } else {
+    // Cache for 30 seconds in browser (short TTL for dynamic data)
+    response.setHeader(
+      "Cache-Control",
+      "public, max-age=30, s-maxage=300, stale-while-revalidate=600"
+    );
+  }
+  
+  response.setHeader("ETag", `"products-${Date.now()}"`);
 
   try {
-    const products = await getProducts();
+    // Use non-CDN client if bypassing cache
+    const products = bypassCache ? await getProductsNoCache() : await getProducts();
     response.status(200).json(products);
   } catch (error) {
     response.status(500).json({ error: "Failed to fetch products" });

@@ -11,7 +11,7 @@ const ChartContext = React.createContext<{
 export interface ChartConfig {
   [key: string]: {
     label?: React.ReactNode
-    color?: string
+    color?: string 
     icon?: React.ReactNode
   } & Record<string, unknown>
 }

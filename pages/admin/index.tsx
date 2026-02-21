@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useUser, SignInButton } from "@clerk/nextjs";
+import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiPlus, FiLogOut } from "react-icons/fi";
 import { ProductForm } from "@/components/ProductForm";
 import { Analytics } from "@/components/Analytics";
 import type { Product, Category } from "@/types/product";
@@ -127,12 +127,23 @@ export default function AdminDashboard() {
   const handleFormSuccess = async (isNew: boolean) => {
     toast.success(isNew ? "Product created!" : "Product updated!");
     handleFormClose();
-    // Refresh products
+    // Wait a moment for Sanity to index the document
+    await new Promise(resolve => setTimeout(resolve, 800));
+    // Refresh products with cache bypass using timestamp
     try {
-      const response = await fetch("/api/products");
+      const response = await fetch(`/api/products?t=${Date.now()}`, {
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+        },
+      });
       if (response.ok) {
         const data = await response.json();
+        console.log("Products refreshed:", data.length, "products");
         setProducts(data);
+        setCurrentPage(1); // Reset to first page
+      } else {
+        console.error("Failed to refresh products:", response.status);
       }
     } catch (error) {
       console.error("Error refreshing products:", error);
@@ -262,9 +273,17 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900">Admin Dashboard</h1>
-        <p className="mt-2 text-sm md:text-base text-stone-600">Manage your food products and inventory</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-stone-900">Admin Dashboard</h1>
+          <p className="mt-2 text-sm md:text-base text-stone-600">Manage your food products and inventory</p>
+        </div>
+        <SignOutButton>
+          <button className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:border-stone-300">
+            <FiLogOut size={16} />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </SignOutButton>
       </div>
 
       {/* Toggle Analytics */}
