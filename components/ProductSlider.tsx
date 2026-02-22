@@ -1,29 +1,35 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import type { Product } from "@/types/product";
 
 export const ProductSlider = memo(function ProductSlider({ products }: { products: Product[] }) {
+  // Filter to only show products with images
+  const productsWithImages = useMemo(
+    () => products.filter((product) => product.images && product.images.length > 0 && product.images[0]),
+    [products]
+  );
+
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (products.length <= 1) {
+    if (productsWithImages.length <= 1) {
       return;
     }
 
     const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % products.length);
+      setActiveIndex((prev) => (prev + 1) % productsWithImages.length);
     }, 4500);
 
     return () => clearInterval(timer);
-  }, [products.length]);
+  }, [productsWithImages.length]);
 
-  if (!products.length) {
+  if (!productsWithImages.length) {
     return null;
   }
 
-  const activeProduct = products[activeIndex];
+  const activeProduct = productsWithImages[activeIndex];
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-amber-200/60 bg-gradient-to-br from-white via-amber-50 to-teal-50 p-6 shadow-xl">
+    <div className="relative overflow-hidden rounded-3xl border border-amber-200/60 bg-linear-to-br from-white via-amber-50 to-teal-50 p-6 shadow-xl">
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         <div className="flex flex-col gap-3">
           <span className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-700">
@@ -43,22 +49,16 @@ export const ProductSlider = memo(function ProductSlider({ products }: { product
           </div>
         </div>
         <div className="overflow-hidden rounded-2xl border border-amber-100/60 bg-white/70">
-          {activeProduct.images?.[0] ? (
-            <img
-              src={activeProduct.images[0]}
-              alt={activeProduct.title}
-              className="h-48 w-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex h-48 w-full items-center justify-center text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
-              No image
-            </div>
-          )}
+          <img
+            src={activeProduct.images[0]}
+            alt={activeProduct.title}
+            className="h-48 w-full object-cover"
+            loading="lazy"
+          />
         </div>
       </div>
       <div className="mt-6 flex gap-2">
-        {products.map((product, index) => (
+        {productsWithImages.map((product, index) => (
           <button
             key={product.id}
             onClick={() => setActiveIndex(index)}

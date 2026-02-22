@@ -10,3 +10,4 @@ export const sanityClient = createClient({
   projectId: projectId || "",
   dataset: dataset || "",
   apiVersion,
+});

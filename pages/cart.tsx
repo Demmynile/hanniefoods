@@ -1,4 +1,6 @@
 import { selectCartTotal, useCartStore } from "@/store/cart";
+import { useState } from "react";
+import PaystackCheckout from "@/components/PaystackCheckout";
 
 export default function CartPage() {
   const items = useCartStore((state) => state.items);
@@ -6,6 +8,10 @@ export default function CartPage() {
   const removeItem = useCartStore((state) => state.removeItem);
   const clear = useCartStore((state) => state.clear);
   const total = selectCartTotal(items);
+  
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
   if (!items.length) {
     return (
@@ -52,7 +58,7 @@ export default function CartPage() {
               >
                 -
               </button>
-              <span className="min-w-[32px] text-center text-sm font-semibold text-stone-800">
+              <span className="min-w-8 text-center text-sm font-semibold text-stone-800">
                 {item.quantity}
               </span>
               <button
@@ -71,14 +77,60 @@ export default function CartPage() {
           </div>
         ))}
       </div>
+      
+      {/* Customer Information Form */}
+      <div className="rounded-3xl border border-stone-200/70 bg-white/80 px-6 py-4 shadow-xl">
+        <h2 className="mb-4 text-lg font-semibold text-stone-900">Customer Information</h2>
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1">
+              Email Address <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your.email@example.com"
+              required
+              className="w-full rounded-lg border border-stone-200 px-4 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            />
+          </div>
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-stone-700 mb-1">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="John Doe"
+              className="w-full rounded-lg border border-stone-200 px-4 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            />
+          </div>
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-stone-700 mb-1">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+234 800 000 0000"
+              className="w-full rounded-lg border border-stone-200 px-4 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            />
+          </div>
+        </div>
+      </div>
+      
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-amber-200/60 bg-white/80 px-6 py-4 shadow-xl">
         <div>
           <p className="text-sm uppercase tracking-widest text-stone-500">Total</p>
-          <p className="text-2xl font-semibold text-stone-900">${total}</p>
+          <p className="text-2xl font-semibold text-stone-900">₦{total.toLocaleString()}</p>
         </div>
-        <button className="rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white">
-          Checkout
-        </button>
+        <PaystackCheckout email={email} name={name} phone={phone} />
       </div>
     </div>
   );
