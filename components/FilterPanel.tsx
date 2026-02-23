@@ -62,24 +62,25 @@ export function FilterPanel({
   }, []);
 
   return (
-    <div className="flex flex-wrap items-end gap-4 rounded-3xl border border-amber-200/60 bg-white/80 p-5 shadow-xl">
-      <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
-        Search
+    <div className="rounded-2xl border border-stone-200/80 bg-white/90 backdrop-blur-sm p-4 md:p-6 shadow-lg sticky top-20 space-y-5">
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-stone-600">Search</span>
         <input
           value={searchInput}
           onChange={(event) => handleSearchChange(event.target.value)}
           placeholder="Search products"
-          className="w-56 rounded-2xl border border-stone-200/80 bg-white px-4 py-2 text-sm font-medium text-stone-800 outline-none transition focus:border-amber-400"
+          className="w-full rounded-xl border border-stone-200/70 bg-white px-3 py-2.5 text-sm font-medium text-stone-800 placeholder-stone-400 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
         />
       </label>
-      <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
-        Category
+
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-stone-600">Category</span>
         <select
           value={filters.category}
           onChange={(event) =>
             onChange({ ...filters, category: event.target.value })
           }
-          className="rounded-2xl border border-stone-200/80 bg-white px-4 py-2 text-sm font-medium text-stone-800 outline-none transition focus:border-amber-400"
+          className="w-full rounded-xl border border-stone-200/70 bg-white px-3 py-2.5 text-sm font-medium text-stone-800 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
         >
           {categoryOptions.map((category) => (
             <option key={category.slug} value={category.slug}>
@@ -88,12 +89,13 @@ export function FilterPanel({
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
-        Price
+
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-stone-600">Price</span>
         <select
           value={filters.price}
           onChange={(event) => onChange({ ...filters, price: event.target.value })}
-          className="rounded-2xl border border-stone-200/80 bg-white px-4 py-2 text-sm font-medium text-stone-800 outline-none transition focus:border-amber-400"
+          className="w-full rounded-xl border border-stone-200/70 bg-white px-3 py-2.5 text-sm font-medium text-stone-800 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
         >
           {priceOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -102,12 +104,13 @@ export function FilterPanel({
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
-        Sort
+
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-stone-600">Sort</span>
         <select
           value={filters.sort}
           onChange={(event) => onChange({ ...filters, sort: event.target.value })}
-          className="rounded-2xl border border-stone-200/80 bg-white px-4 py-2 text-sm font-medium text-stone-800 outline-none transition focus:border-amber-400"
+          className="w-full rounded-xl border border-stone-200/70 bg-white px-3 py-2.5 text-sm font-medium text-stone-800 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
         >
           {sortOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -116,13 +119,14 @@ export function FilterPanel({
           ))}
         </select>
       </label>
+
       <button
         onClick={() =>
           onChange({ search: "", category: "all", price: "all", sort: "featured" })
         }
-        className="ml-auto rounded-full border border-stone-900/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-stone-700 transition hover:bg-amber-100/70"
+        className="w-full rounded-xl border border-stone-200/70 bg-stone-50 px-3 py-2.5 text-xs font-semibold uppercase tracking-widest text-stone-700 transition hover:bg-amber-100/60 hover:border-amber-300 focus:ring-2 focus:ring-amber-200"
       >
-        Reset
+        Reset Filters
       </button>
     </div>
   );

@@ -89,111 +89,122 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="rounded-3xl border border-amber-200/60 bg-white/80 p-8 shadow-xl">
-        <h1 className="text-2xl font-semibold text-stone-900">
-          Product not found
-        </h1>
-        <p className="mt-2 text-sm text-stone-600">
-          Try selecting another item from the catalog.
-        </p>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+        <div className="rounded-2xl border border-stone-200/80 bg-white/90 backdrop-blur-sm p-8 md:p-12 shadow-lg text-center">
+          <h1 className="text-3xl font-semibold text-stone-900 [font-family:var(--font-display)]">
+            Product not found
+          </h1>
+          <p className="mt-3 text-base text-stone-600">
+            Try selecting another item from the catalog.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-12">
-      <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="relative overflow-hidden rounded-3xl border border-amber-200/60 bg-white/80 shadow-xl">
-          {product.images?.[0] ? (
-            <Image
-              src={product.images[0]}
-              alt={product.title}
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+      <div className="space-y-16 lg:space-y-20">
+        <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="relative overflow-hidden rounded-2xl border border-stone-200/80 bg-gradient-to-br from-stone-100 to-white/80 shadow-lg h-80 md:h-96 lg:h-full min-h-full">
+            {product.images?.[0] ? (
+              <Image
+                src={product.images[0]}
+                alt={product.title}
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
+                No image
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+              {product.badge ? (
+                <span className="w-fit rounded-full bg-amber-600 px-3 py-1 text-xs font-semibold text-white">
+                  {product.badge}
+                </span>
+              ) : null}
+              <h1 className="text-4xl md:text-5xl font-semibold text-stone-900 [font-family:var(--font-display)] leading-tight">
+                {product.title}
+              </h1>
+              <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">
+                {product.category.title}
+              </p>
+            </div>
+
+            <p className="text-base text-stone-600 leading-relaxed">{product.description}</p>
+
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="rounded-xl bg-amber-100/60 border border-amber-200/70 px-4 py-2.5">
+                <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Price</p>
+                <p className="text-2xl md:text-3xl font-bold text-stone-900 mt-1">
+                  ₦{product.price.toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Rating</p>
+                <p className="text-lg font-semibold text-stone-900 mt-1">{product.rating.toFixed(1)} ⭐</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Stock</p>
+                <p className={`text-lg font-semibold mt-1 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {product.stock > 0 ? `${product.stock} available` : "Out of stock"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4">
+              <div className="flex items-center rounded-xl border border-stone-200/70 bg-stone-50/50 overflow-hidden">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-4 py-2 hover:bg-stone-200 transition text-stone-600 font-semibold text-sm"
+                >
+                  −
+                </button>
+                <span className="min-w-[50px] text-center text-sm font-semibold text-stone-800">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="px-4 py-2 hover:bg-stone-200 transition text-stone-600 font-semibold text-sm"
+                >
+                  +
+                </button>
+              </div>
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 sm:flex-none rounded-xl bg-stone-900 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-stone-800 disabled:bg-stone-400 disabled:cursor-not-allowed"
+                disabled={!product.inStock || product.stock === 0}
+              >
+                {product.inStock && product.stock > 0 ? "Add to cart" : "Sold out"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-2xl md:text-3xl font-semibold text-stone-900 [font-family:var(--font-display)]">
+              Recommended from {product.category.title}
+            </h2>
+          </div>
+          {isProductsLoading ? (
+            <DetailSkeleton />
+          ) : recommendations.length ? (
+            <ProductGrid products={recommendations} />
           ) : (
-            <div className="flex h-96 items-center justify-center text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
-              No image
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            {product.badge ? (
-              <span className="w-fit rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-white">
-                {product.badge}
-              </span>
-            ) : null}
-            <h1 className="text-3xl font-semibold text-stone-900 [font-family:var(--font-display)]">
-              {product.title}
-            </h1>
-            <p className="text-sm uppercase tracking-widest text-stone-500">
-              {product.category.title}
+            <p className="text-sm text-stone-500 py-8 text-center">
+              No similar products yet.
             </p>
-          </div>
-
-          <p className="text-base text-stone-600">{product.description}</p>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="rounded-full bg-amber-100 px-4 py-2 text-lg font-semibold text-stone-900">
-              ${product.price}
-            </span>
-            <span className="text-sm font-semibold text-stone-700">
-              Rating {product.rating.toFixed(1)}
-            </span>
-            <span className="text-sm text-stone-500">
-              {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center rounded-full border border-stone-200/80 bg-white">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="px-4 py-2 text-sm font-semibold text-stone-600"
-              >
-                -
-              </button>
-              <span className="min-w-[40px] text-center text-sm font-semibold text-stone-800">
-                {quantity}
-              </span>
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="px-4 py-2 text-sm font-semibold text-stone-600"
-              >
-                +
-              </button>
-            </div>
-            <button
-              onClick={handleAddToCart}
-              className="rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-stone-800 disabled:bg-stone-400"
-              disabled={!product.inStock || product.stock === 0}
-            >
-              {product.inStock && product.stock > 0 ? "Add to cart" : "Sold out"}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-2xl font-semibold text-stone-900 [font-family:var(--font-display)]">
-            Recommended from {product.category.title}
-          </h2>
-        </div>
-        {isProductsLoading ? (
-          <DetailSkeleton />
-        ) : recommendations.length ? (
-          <ProductGrid products={recommendations} />
-        ) : (
-          <p className="text-sm text-stone-500">
-            No similar products yet.
-          </p>
-        )}
-      </section>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

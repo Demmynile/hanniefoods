@@ -86,11 +86,11 @@ export function Analytics({ products, categories }: AnalyticsProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-stone-900 mb-4">Price Distribution</h3>
-          <ChartContainer config={chartConfig} className="h-80">
+          <ChartContainer config={chartConfig} className="h-[300px] w-full">
             <BarChart data={stats.priceData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="range" />
-              <YAxis />
+              <XAxis dataKey="range" fontSize={12} />
+              <YAxis fontSize={12} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="count" fill="#8b5cf6" />
             </BarChart>
@@ -99,7 +99,7 @@ export function Analytics({ products, categories }: AnalyticsProps) {
 
         <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-stone-900 mb-4">Stock Status</h3>
-          <ChartContainer config={chartConfig} className="h-80">
+          <ChartContainer config={chartConfig} className="h-[300px] w-full">
             <PieChart>
               <Pie
                 data={stats.stockData}
@@ -107,7 +107,7 @@ export function Analytics({ products, categories }: AnalyticsProps) {
                 cy="50%"
                 labelLine={false}
                 label={({ name, value }) => `${name}: ${value}`}
-                outerRadius={80}
+                outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -123,11 +123,11 @@ export function Analytics({ products, categories }: AnalyticsProps) {
         {stats.categoryData.length > 0 && (
           <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm lg:col-span-2">
             <h3 className="text-lg font-semibold text-stone-900 mb-4">Products by Category</h3>
-            <ChartContainer config={chartConfig} className="h-80">
+            <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <BarChart data={stats.categoryData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+                <XAxis dataKey="name" fontSize={12} angle={-45} textAnchor="end" height={80} />
+                <YAxis fontSize={12} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="value" fill="#f59e0b" />
               </BarChart>

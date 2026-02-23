@@ -13,6 +13,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.7.0",
     "@sanity/client": "^6.25.1",
+    "@sanity/icons": "^2.11.8",
     "@sanity/image-url": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

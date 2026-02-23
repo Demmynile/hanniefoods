@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { Menu, X, LogIn, ShoppingCart } from "lucide-react";
 import { useCartStore, selectCartCount } from "@/store/cart";
@@ -8,11 +9,15 @@ import { useCartUIStore } from "@/store/cartUI";
 import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
 
 export function Header() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const items = useCartStore((state) => state.items);
   const cartCount = selectCartCount(items);
   const openCart = useCartUIStore((state) => state.open);
   const { user } = useUser();
+  
+  // Hide cart on admin pages
+  const isAdminPage = router.pathname.startsWith('/admin');
 
   return (
     <header className="sticky top-0 z-50 border-b border-amber-200/60 bg-white/95 backdrop-blur-sm px-6 py-4 lg:px-12">
@@ -32,18 +37,20 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={openCart}
-            className="relative rounded-lg border border-stone-200/70 bg-white/60 p-2 transition hover:bg-amber-100/70"
-            aria-label="Open cart"
-          >
-            <ShoppingCart size={20} className="text-stone-700" />
-            {cartCount > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-xs font-semibold text-white">
-                {cartCount}
-              </span>
-            )}
-          </button>
+          {!isAdminPage && (
+            <button
+              onClick={openCart}
+              className="relative rounded-lg border border-stone-200/70 bg-white/60 p-2 transition hover:bg-amber-100/70"
+              aria-label="Open cart"
+            >
+              <ShoppingCart size={20} className="text-stone-700" />
+              {cartCount > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-xs font-semibold text-white">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          )}
 
           <div className="hidden md:flex items-center gap-2">
             {user ? (

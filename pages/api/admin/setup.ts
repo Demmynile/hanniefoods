@@ -28,17 +28,6 @@ export default async function handler(
       error: "Please use Clerk Dashboard to grant admin access",
       details: "Go to Clerk Dashboard > Users > Select user > Metadata > Add isAdmin: true"
     });
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.errors?.[0]?.message || "Failed to update user");
-    }
-
-    return res.status(200).json({
-      message: "Admin access granted",
-    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("Admin setup error:", errorMessage);

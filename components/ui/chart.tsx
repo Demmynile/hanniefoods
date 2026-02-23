@@ -27,7 +27,7 @@ const ChartContainer = React.forwardRef<
     <ChartContext.Provider value={{ config }}>
       <div
         ref={ref}
-        className={cn("flex aspect-video justify-center text-xs", className)}
+        className={cn("flex w-full justify-center text-xs", className)}
         {...props}
       >
         <RechartsPrimitive.ResponsiveContainer width="100%" height="100%">
