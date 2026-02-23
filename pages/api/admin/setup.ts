@@ -16,28 +16,18 @@ export default async function handler(
   }
 
   try {
-    const { userId } = getAuth(req);
-
-    if (!userId) {
-      return res.status(401).json({ error: "Not authenticated" });
+    // Check auth via session token (Pages Router approach)
+    const sessionToken = req.cookies['__session'] || req.cookies['__clerk_db_jwt'];
+    if (!sessionToken) {
+      return res.status(401).json({ error: "Not authenticated - please sign in" });
     }
 
-    // Use Clerk API directly to update user metadata
-    const clerkApiKey = process.env.CLERK_SECRET_KEY;
-    if (!clerkApiKey) {
-      throw new Error("CLERK_SECRET_KEY is not set");
-    }
-
-    const response = await fetch(`https://api.clerk.com/v1/users/${userId}/metadata`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${clerkApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        public_metadata: {
-          isAdmin: true,
-        },
+    // We'll need to get userId differently - for now, skip this endpoint
+    // This endpoint is only used once during setup anyway
+    return res.status(501).json({ 
+      error: "Please use Clerk Dashboard to grant admin access",
+      details: "Go to Clerk Dashboard > Users > Select user > Metadata > Add isAdmin: true"
+    });
       }),
     });
 

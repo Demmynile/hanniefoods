@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { FiEdit2, FiTrash2, FiPlus, FiLogOut } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiPlus, FiLogOut, FiRefreshCw } from "react-icons/fi";
 import { ProductForm } from "@/components/ProductForm";
 import { Analytics } from "@/components/Analytics";
 import type { Product, Category } from "@/types/product";
@@ -31,7 +31,11 @@ export default function AdminDashboard() {
   const fetchProducts = async () => {
     try {
       const response = await fetch("/api/products");
-      if (!response.ok) throw new Error("Failed to fetch products");
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("API Error:", text);
+        throw new Error("Failed to fetch products");
+      }
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -45,7 +49,11 @@ export default function AdminDashboard() {
   const fetchCategories = async () => {
     try {
       const response = await fetch("/api/categories");
-      if (!response.ok) throw new Error("Failed to fetch categories");
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("API Error:", text);
+        throw new Error("Failed to fetch categories");
+      }
       const data = await response.json();
       setCategories(data);
     } catch (error) {
@@ -127,8 +135,8 @@ export default function AdminDashboard() {
   const handleFormSuccess = async (isNew: boolean) => {
     toast.success(isNew ? "Product created!" : "Product updated!");
     handleFormClose();
-    // Wait a moment for Sanity to index the document
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Wait for Sanity to propagate the changes (increased from 800ms to 1500ms)
+    await new Promise(resolve => setTimeout(resolve, 1500));
     // Refresh products with cache bypass using timestamp
     try {
       const response = await fetch(`/api/products?t=${Date.now()}`, {
@@ -137,16 +145,18 @@ export default function AdminDashboard() {
           "Pragma": "no-cache",
         },
       });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Products refreshed:", data.length, "products");
-        setProducts(data);
-        setCurrentPage(1); // Reset to first page
-      } else {
-        console.error("Failed to refresh products:", response.status);
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Failed to refresh products:", response.status, text);
+        throw new Error("Failed to refresh products");
       }
+      const data = await response.json();
+      console.log("Products refreshed:", data.length, "products");
+      setProducts(data);
+      setCurrentPage(1); // Reset to first page
     } catch (error) {
       console.error("Error refreshing products:", error);
+      toast.error("Products updated but list refresh failed. Please reload the page.");
     }
   };
 
@@ -311,13 +321,26 @@ export default function AdminDashboard() {
           <div>
             <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-lg md:text-xl font-semibold text-stone-900">Products</h2>
-              <button
-                onClick={handleCreateClick}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 transition-colors"
-              >
-                <FiPlus size={18} />
-                Add Product
-              </button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    setLoading(true);
+                    fetchProducts();
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+                  title="Refresh products"
+                >
+                  <FiRefreshCw size={18} />
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
+                <button
+                  onClick={handleCreateClick}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 transition-colors"
+                >
+                  <FiPlus size={18} />
+                  Add Product
+                </button>
+              </div>
             </div>
 
             {loading ? (

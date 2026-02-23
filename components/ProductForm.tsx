@@ -70,11 +70,19 @@ export function ProductForm({
             body: uploadData,
           });
 
-          const uploadResult = await uploadResponse.json();
-
           if (!uploadResponse.ok) {
-            throw new Error(uploadResult.error || "Image upload failed");
+            const text = await uploadResponse.text();
+            let errorMsg = "Image upload failed";
+            try {
+              const parsedError = JSON.parse(text);
+              errorMsg = parsedError.error || parsedError.details || errorMsg;
+            } catch {
+              console.error("Upload error response:", text);
+            }
+            throw new Error(errorMsg);
           }
+
+          const uploadResult = await uploadResponse.json();
 
           if (uploadResult.assetId) {
             imageAssetIds = [...imageAssetIds, uploadResult.assetId];
@@ -100,18 +108,29 @@ export function ProductForm({
         body.imageAssetIds = imageAssetIds;
       }
 
+      console.log(`${mode === "create" ? "Creating" : "Updating"} product:`, body);
+
       const response = await fetch(apiEndpoint, {
         method: mode === "create" ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.details || data.error || "Failed to save product");
+        const text = await response.text();
+        console.error(`${mode === "create" ? "Create" : "Update"} failed:`, response.status, text);
+        let errorMsg = "Failed to save product";
+        try {
+          const parsedError = JSON.parse(text);
+          errorMsg = parsedError.details || parsedError.error || errorMsg;
+        } catch {
+          console.error("Save error response:", text);
+        }
+        throw new Error(errorMsg);
       }
 
+      console.log(`Product ${mode === "create" ? "created" : "updated"} successfully`);
+      await response.json();
       onSuccess();
     } catch (error) {
       toast.error(

@@ -10,10 +10,13 @@ export const sanityClient = createClient({
   projectId: projectId || "",
   dataset: dataset || "",
   apiVersion,
+  useCdn: true, // Use CDN for normal requests
 });
 
 export const sanityClientNoCache = createClient({
   projectId: projectId || "",
   dataset: dataset || "",
   apiVersion,
+  useCdn: false, // Don't use CDN - get fresh data directly from Sanity
+  perspective: 'published', // Ensure we get the latest published data
 });

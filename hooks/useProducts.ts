@@ -20,6 +20,11 @@ export function useProducts() {
           fetch("/api/products"),
           fetch("/api/categories"),
         ]);
+        
+        if (!productsRes.ok || !categoriesRes.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        
         const productsData = (await productsRes.json()) as Product[];
         const categoriesData = (await categoriesRes.json()) as Category[];
 
@@ -27,7 +32,8 @@ export function useProducts() {
           setProducts(productsData);
           setCategories(categoriesData);
         }
-      } catch {
+      } catch (error) {
+        console.error("Error loading products:", error);
         if (active) {
           setProducts([]);
           setCategories([]);

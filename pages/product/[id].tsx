@@ -33,10 +33,18 @@ export default function ProductDetailPage() {
       setIsLoading(true);
       try {
         const response = await fetch(`/api/products/${id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch product');
+        }
         const data = (await response.json()) as Product | null;
         if (active) {
           setProduct(data);
           setQuantity(1);
+        }
+      } catch (error) {
+        console.error('Error loading product:', error);
+        if (active) {
+          setProduct(null);
         }
       } finally {
         if (active) {
