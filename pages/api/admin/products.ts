@@ -54,7 +54,7 @@ export default async function handler(
         imageAssetIds,
       } = req.body;
 
-      const document = {
+      const document: any = {
         _type: "product",
         title,
         slug: { current: title.toLowerCase().replace(/\s+/g, "-") },
@@ -140,7 +140,7 @@ export default async function handler(
         imageAssetIds,
       } = req.body;
 
-      const updates = {
+      const updates: any = {
         title,
         slug: { current: title.toLowerCase().replace(/\s+/g, "-") },
         price: parseFloat(price),

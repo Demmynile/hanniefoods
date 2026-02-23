@@ -50,7 +50,7 @@ export const ProductSlider = memo(function ProductSlider({ products }: { product
         </div>
         <div className="overflow-hidden rounded-2xl border border-amber-100/60 bg-white/70">
           <img
-            src={activeProduct.images[0]}
+            src={activeProduct.images?.[0] || ""}
             alt={activeProduct.title}
             className="h-48 w-full object-cover"
             loading="lazy"

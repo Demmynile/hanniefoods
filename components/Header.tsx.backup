@@ -17,12 +17,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-amber-200/60 bg-white/95 backdrop-blur-sm px-6 py-4 lg:px-12">
       <div className="flex items-center justify-between gap-4">
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="text-xl font-bold text-stone-900 [font-family:var(--font-display)]">
             Hannies
           </div>
         </Link>
 
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-8 items-center">
           {user?.publicMetadata?.role === "admin" && (
             <Link href="/admin" className="text-stone-600 hover:text-stone-900 transition">
@@ -31,6 +33,7 @@ export function Header() {
           )}
         </nav>
 
+        {/* Actions */}
         <div className="flex items-center gap-4">
           <button
             onClick={openCart}
@@ -44,7 +47,7 @@ export function Header() {
               </span>
             )}
           </button>
-
+          {/* Auth */}
           <div className="hidden md:flex items-center gap-2">
             {user ? (
               <UserButton afterSignOutUrl="/" />
@@ -58,6 +61,7 @@ export function Header() {
             )}
           </div>
 
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden rounded-lg border border-stone-200/70 bg-white/60 p-2 transition hover:bg-amber-100/70"
@@ -71,6 +75,7 @@ export function Header() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMenuOpen && (
         <nav className="md:hidden flex flex-col gap-3 pt-4 border-t border-amber-200/60 mt-4">
           {user?.publicMetadata?.role === "admin" && (

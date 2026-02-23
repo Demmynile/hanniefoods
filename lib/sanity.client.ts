@@ -11,3 +11,9 @@ export const sanityClient = createClient({
   dataset: dataset || "",
   apiVersion,
 });
+
+export const sanityClientNoCache = createClient({
+  projectId: projectId || "",
+  dataset: dataset || "",
+  apiVersion,
+});
