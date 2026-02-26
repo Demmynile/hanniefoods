@@ -26,9 +26,17 @@ const matchesPrice = (product: Product, price: string) => {
 };
 
 const HomePage = memo(function HomePage() {
-  const { products, categories, isLoading } = useProducts();
+  const { products, categories: rawCategories, isLoading } = useProducts();
   const [filters, setFilters] = useState<ProductFilters>(defaultFilters);
   const [page, setPage] = useState(1);
+
+  // Remove duplicate categories
+  const categories = useMemo(() => {
+    return rawCategories.reduce((acc, cat) => {
+      const exists = acc.some(c => (c.id || c.slug) === (cat.id || cat.slug));
+      return exists ? acc : [...acc, cat];
+    }, [] as typeof rawCategories);
+  }, [rawCategories]);
 
   useEffect(() => {
     setPage(1);

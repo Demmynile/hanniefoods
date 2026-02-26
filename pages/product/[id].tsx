@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { DetailSkeleton } from "@/components/Skeletons";
 import { ProductGrid } from "@/components/ProductGrid";
+import ProductReviews from "@/components/ProductReviews";
 import { useProducts } from "@/hooks/useProducts";
 import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
@@ -149,11 +150,29 @@ export default function ProductDetailPage() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Rating</p>
-                <p className="text-lg font-semibold text-stone-900 mt-1">{product.rating.toFixed(1)} ⭐</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        className={`text-lg ${
+                          star <= Math.round(product.rating || 0)
+                            ? "text-yellow-500"
+                            : "text-stone-300"
+                        }`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-lg font-semibold text-stone-900">
+                    {product.rating ? product.rating.toFixed(1) : "No ratings"}
+                  </span>
+                </div>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Stock</p>
-                <p className={`text-lg font-semibold mt-1 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`text-lg font-semibold mt-1 ${product.stock > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {product.stock > 0 ? `${product.stock} available` : "Out of stock"}
                 </p>
               </div>
@@ -171,8 +190,9 @@ export default function ProductDetailPage() {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                   className="px-4 py-2 hover:bg-stone-200 transition text-stone-600 font-semibold text-sm"
+                  disabled={quantity >= product.stock}
                 >
                   +
                 </button>
@@ -186,6 +206,14 @@ export default function ProductDetailPage() {
               </button>
             </div>
           </div>
+        </section>
+
+        {/* Product Reviews Section */}
+        <section className="space-y-6">
+          <h2 className="text-2xl md:text-3xl font-semibold text-stone-900 [font-family:var(--font-display)]">
+            Customer Reviews
+          </h2>
+          <ProductReviews productId={product.id} />
         </section>
 
         <section className="space-y-6">
