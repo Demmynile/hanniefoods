@@ -87,6 +87,8 @@ export default async function handler(
       }
 
       try {
+        console.log('POST /api/reviews attempting to create review:', { productId, userId, rating, userName });
+        
         // Check for existing review
         const existing = await client.fetch(
           `*[_type == "review" && userId == $userId && product._ref == $productId][0]`,
@@ -94,10 +96,12 @@ export default async function handler(
         );
 
         if (existing) {
+          console.log('Existing review found, rejecting duplicate');
           return res.status(400).json({ message: 'You already reviewed this product' });
         }
 
         // Create review
+        console.log('Creating new review document...');
         const review = await client.create({
           _type: 'review',
           product: {
@@ -112,6 +116,7 @@ export default async function handler(
           createdAt: new Date().toISOString(),
           verified: false,
         });
+        console.log('Review created successfully with ID:', review._id);
 
         // Update product rating immediately
         try {
@@ -119,6 +124,7 @@ export default async function handler(
             `*[_type == "review" && product._ref == $productId]{ rating }`,
             { productId }
           );
+          console.log('All reviews for product after creation:', allReviewsData.length);
           
           if (allReviewsData && allReviewsData.length > 0) {
             const avg = allReviewsData.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviewsData.length;
@@ -134,6 +140,7 @@ export default async function handler(
         }
 
         // Fetch updated reviews to return in response
+        console.log('Fetching all reviews for product to return...');
         const updatedReviews = await client.fetch(
           `*[_type == "review" && product._ref == $productId] | order(createdAt desc) {
             _id,
@@ -145,6 +152,7 @@ export default async function handler(
           }`,
           { productId }
         );
+        console.log('Total reviews fetched after submit:', updatedReviews.length);
 
         const updatedAverage = updatedReviews.length > 0
           ? updatedReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / updatedReviews.length
