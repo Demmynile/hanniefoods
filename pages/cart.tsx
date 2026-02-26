@@ -113,8 +113,8 @@ export default function CartPage() {
                 </p>
                 <SignInButton 
                   mode="redirect" 
-                  redirectUrl="/cart"
-                  signInForceRedirectUrl="/cart"
+                  fallbackRedirectUrl="/cart"
+                  forceRedirectUrl="/cart"
                 >
                   <button className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600">
                     Sign In with Clerk
