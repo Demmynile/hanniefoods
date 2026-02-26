@@ -6,6 +6,19 @@ import { AdminAuthGuard } from "@/components/AdminAuthGuard";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Analytics } from "@/components/Analytics";
 import type { Product, Category } from "@/types/product";
+import dynamic from "next/dynamic";
+
+const DynamicAnalytics = dynamic(() => Promise.resolve(Analytics), {
+  ssr: false,
+  loading: () => (
+    <div className="rounded-lg bg-white border border-stone-200/70 p-6 shadow-sm">
+      <div className="text-stone-600 flex items-center gap-3">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900"></div>
+        Loading analytics...
+      </div>
+    </div>
+  ),
+});
 
 function AnalyticsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -66,7 +79,7 @@ function AnalyticsPageContent() {
         </div>
       ) : (
         <div className="rounded-lg bg-white border border-stone-200/70 p-6 shadow-sm">
-          <Analytics products={products} categories={categories} />
+          <DynamicAnalytics products={products} categories={categories} />
         </div>
       )}
     </div>
