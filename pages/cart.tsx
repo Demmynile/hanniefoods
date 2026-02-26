@@ -2,14 +2,27 @@ import { selectCartTotal, useCartStore } from "@/store/cart";
 import { useState } from "react";
 import PaystackCheckout from "@/components/PaystackCheckout";
 import { useUser, SignInButton } from "@clerk/nextjs";
+import { ProductSlider } from "@/components/ProductSlider";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function CartPage() {
   const { user, isLoaded } = useUser();
+  const { products, isLoading: productsLoading } = useProducts();
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
   const clear = useCartStore((state) => state.clear);
   const total = selectCartTotal(items);
+  
+  // Get featured products for recommendations, or just take first 4 if none featured
+  const featuredProducts = products.filter((product) => product.featured).length > 0
+    ? products.filter((product) => product.featured).slice(0, 4)
+    : products.slice(0, 4);
+  
+  // Debug: Log to see what we have
+  console.log("Cart Page - Total products:", products.length);
+  console.log("Cart Page - Featured products:", featuredProducts.length);
+  console.log("Cart Page - Products loading:", productsLoading);
   
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -19,11 +32,35 @@ export default function CartPage() {
   if (!items.length) {
     return (
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
-        <div className="rounded-2xl border border-stone-200/80 bg-white/90 backdrop-blur-sm p-8 md:p-12 shadow-lg text-center">
-          <h1 className="text-3xl font-semibold text-stone-900 [font-family:var(--font-display)]">Your cart is empty</h1>
-          <p className="mt-3 text-base text-stone-600">
-            Add a few essentials to build your next delivery.
-          </p>
+        <div className="space-y-12">
+          <div className="rounded-2xl border border-stone-200/80 bg-white/90 backdrop-blur-sm p-8 md:p-12 shadow-lg text-center">
+            <h1 className="text-3xl font-semibold text-stone-900 [font-family:var(--font-display)]">Your cart is empty</h1>
+            <p className="mt-3 text-base text-stone-600">
+              Add a few essentials to build your next delivery.
+            </p>
+          </div>
+          
+          {/* Featured Products for Empty Cart */}
+          {productsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-stone-600 flex items-center gap-3">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900"></div>
+                Loading recommendations...
+              </div>
+            </div>
+          ) : featuredProducts.length > 0 ? (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold text-stone-900 [font-family:var(--font-display)]">
+                  Popular Items
+                </h2>
+                <p className="mt-2 text-sm text-stone-600">
+                  Start with these customer favorites
+                </p>
+              </div>
+              <ProductSlider products={featuredProducts} />
+            </div>
+          ) : null}
         </div>
       </div>
     );
@@ -211,6 +248,28 @@ export default function CartPage() {
           </div>
         </div>
         )}
+
+        {/* Featured Products Recommendations */}
+        {productsLoading ? (
+          <div className="mt-12 pt-8 border-t border-stone-200 flex items-center justify-center py-12">
+            <div className="text-stone-600 flex items-center gap-3">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900"></div>
+              Loading recommendations...
+            </div>
+          </div>
+        ) : featuredProducts.length > 0 ? (
+          <div className="mt-12 pt-8 border-t border-stone-200">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold text-stone-900 [font-family:var(--font-display)]">
+                You might also like
+              </h2>
+              <p className="mt-2 text-sm text-stone-600">
+                Check out these popular items from our menu
+              </p>
+            </div>
+            <ProductSlider products={featuredProducts} />
+          </div>
+        ) : null}
       </div>
     </div>
   );
