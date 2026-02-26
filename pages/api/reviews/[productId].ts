@@ -8,7 +8,15 @@ const client = createClient({
   apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01',
   token: process.env.SANITY_API_TOKEN,
   useCdn: false,
+  perspective: 'published',
 });
+
+if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+  console.error('NEXT_PUBLIC_SANITY_PROJECT_ID is not set');
+}
+if (!process.env.SANITY_API_TOKEN) {
+  console.error('SANITY_API_TOKEN is not set');
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -26,6 +34,7 @@ export default async function handler(
       }
 
       try {
+        console.log('Fetching reviews for productId:', productId);
         const reviews = await client.fetch(
           `*[_type == "review" && product._ref == $productId] | order(createdAt desc) {
             _id,
@@ -37,6 +46,7 @@ export default async function handler(
           }`,
           { productId }
         );
+        console.log('Reviews fetched:', reviews.length);
 
         const averageRating = reviews.length > 0
           ? reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length
@@ -103,24 +113,50 @@ export default async function handler(
           verified: false,
         });
 
-        // Update product rating asynchronously (fire and forget)
-        client.fetch(
-          `*[_type == "review" && product._ref == $productId]{ rating }`,
-          { productId }
-        ).then((allReviews: any[]) => {
-          if (allReviews.length > 0) {
-            const avg = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
-            client.patch(productId)
-              .set({ rating: Math.round(avg * 10) / 10 })
-              .commit()
-              .catch(err => console.error('Rating update failed:', err));
+        // Update product rating immediately
+        try {
+          const allReviewsData = await client.fetch(
+            `*[_type == "review" && product._ref == $productId]{ rating }`,
+            { productId }
+          );
+          
+          if (allReviewsData && allReviewsData.length > 0) {
+            const avg = allReviewsData.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviewsData.length;
+            const roundedRating = Math.round(avg * 10) / 10;
+            
+            await client.patch(productId)
+              .set({ rating: roundedRating })
+              .commit();
+            console.log('Product rating updated to:', roundedRating);
           }
-        }).catch(err => console.error('Review fetch failed:', err));
+        } catch (err) {
+          console.error('Rating update error:', err);
+        }
+
+        // Fetch updated reviews to return in response
+        const updatedReviews = await client.fetch(
+          `*[_type == "review" && product._ref == $productId] | order(createdAt desc) {
+            _id,
+            userName,
+            rating,
+            comment,
+            createdAt,
+            verified
+          }`,
+          { productId }
+        );
+
+        const updatedAverage = updatedReviews.length > 0
+          ? updatedReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / updatedReviews.length
+          : 0;
 
         return res.status(201).json({
           success: true,
           message: 'Review submitted',
           review,
+          reviews: updatedReviews,
+          averageRating: Math.round(updatedAverage * 10) / 10,
+          totalReviews: updatedReviews.length,
         });
       } catch (error) {
         console.error('Review creation error:', error);

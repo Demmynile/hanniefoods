@@ -36,7 +36,12 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
   const fetchReviews = async () => {
     try {
       console.log('Fetching reviews for product:', productId);
-      const response = await fetch(`/api/reviews/${productId}`);
+      const response = await fetch(`/api/reviews/${productId}?t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        }
+      });
       
       // Check if response is actually JSON
       const contentType = response.headers.get('content-type');
@@ -127,7 +132,8 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         toast.success('Review submitted successfully!');
         setFormData({ rating: 5, comment: '' });
         setShowReviewForm(false);
-        fetchReviews();
+        // Wait 1 second for backend to process, then fetch fresh reviews
+        setTimeout(() => fetchReviews(), 1000);
       } else {
         const errorMessage = data.message || data.details || 'Failed to submit review';
         console.error('Review submission failed:', errorMessage);
