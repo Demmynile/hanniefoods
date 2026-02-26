@@ -2,19 +2,24 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@sanity/client';
 import { getAuth } from '@clerk/nextjs/server';
 
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '';
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
+const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01';
+const hasSanityToken = !!process.env.SANITY_API_TOKEN;
+
 const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01',
+  projectId,
+  dataset,
+  apiVersion,
   token: process.env.SANITY_API_TOKEN,
   useCdn: false,
   perspective: 'published',
 });
 
-if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+if (!projectId) {
   console.error('NEXT_PUBLIC_SANITY_PROJECT_ID is not set');
 }
-if (!process.env.SANITY_API_TOKEN) {
+if (!hasSanityToken) {
   console.error('SANITY_API_TOKEN is not set');
 }
 
@@ -23,6 +28,10 @@ export default async function handler(
   res: NextApiResponse
 ) {
   res.setHeader('Content-Type', 'application/json');
+  const includeDebug = String(req.query.debug || '') === '1';
+  const debugInfo = includeDebug
+    ? { projectId, dataset, apiVersion, hasToken: hasSanityToken }
+    : undefined;
 
   try {
     // Get reviews - no auth required
@@ -56,6 +65,7 @@ export default async function handler(
           reviews,
           averageRating: Math.round(averageRating * 10) / 10,
           totalReviews: reviews.length,
+          ...(debugInfo ? { debug: debugInfo } : {}),
         });
       } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -165,6 +175,7 @@ export default async function handler(
           reviews: updatedReviews,
           averageRating: Math.round(updatedAverage * 10) / 10,
           totalReviews: updatedReviews.length,
+          ...(debugInfo ? { debug: debugInfo } : {}),
         });
       } catch (error) {
         console.error('Review creation error:', error);
