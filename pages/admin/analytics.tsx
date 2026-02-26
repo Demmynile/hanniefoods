@@ -1,12 +1,11 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { AdminAuthGuard } from "@/components/AdminAuthGuard";
 import { AdminLayout } from "@/components/AdminLayout";
 import type { Product, Category } from "@/types/product";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 // Dynamically import Analytics with SSR disabled to prevent build errors with recharts
 const Analytics = dynamic(() => import("@/components/Analytics").then(mod => ({ default: mod.Analytics })), {
