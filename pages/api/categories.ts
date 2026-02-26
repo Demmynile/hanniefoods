@@ -13,8 +13,15 @@ export default async function handler(
   
   try {
     const categories = await getCategories();
-    // Ensure categories is always an array
-    response.status(200).json(Array.isArray(categories) ? categories : []);
+    
+    // Ensure categories is always an array and remove any remaining duplicates
+    const categoryArray = Array.isArray(categories) ? categories : [];
+    const uniqueCategories = categoryArray.reduce((acc, cat) => {
+      const exists = acc.some(c => (c.id || c.slug) === (cat.id || cat.slug));
+      return exists ? acc : [...acc, cat];
+    }, [] as typeof categoryArray);
+    
+    response.status(200).json(uniqueCategories);
   } catch (error) {
     console.error("Error fetching categories:", error);
     response.status(500).json({ error: "Failed to fetch categories" });

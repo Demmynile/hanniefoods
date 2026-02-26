@@ -51,9 +51,11 @@ export const product = defineType({
     }),
     defineField({
       name: "rating",
-      title: "Rating",
+      title: "Average Rating",
       type: "number",
       validation: (Rule) => Rule.min(0).max(5),
+      initialValue: 0,
+      description: "Automatically calculated from reviews",
     }),
     defineField({
       name: "stock",

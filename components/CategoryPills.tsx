@@ -9,11 +9,20 @@ export function CategoryPills({
   active: string;
   onChange: (slug: string) => void;
 }) {
-  const allCategories = [{ id: "all", title: "All", slug: "all" }, ...(Array.isArray(categories) ? categories : [])];
+  const allCategories = [
+    { id: "all", title: "All", slug: "all" },
+    ...(Array.isArray(categories) ? categories : []),
+  ];
+  
+  // Remove duplicate categories by ID
+  const uniqueCategories = allCategories.reduce((acc, cat) => {
+    const exists = acc.some(c => (c.id || c.slug) === (cat.id || cat.slug));
+    return exists ? acc : [...acc, cat];
+  }, [] as typeof allCategories);
 
   return (
     <div className="flex flex-wrap gap-2">
-      {allCategories.map((category) => (
+      {uniqueCategories.map((category) => (
         <button
           key={category.slug || category.id}
           onClick={() => onChange(category.slug || category.id)}

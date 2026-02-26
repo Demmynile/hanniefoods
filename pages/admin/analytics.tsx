@@ -1,21 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { AdminAuthGuard } from "@/components/AdminAuthGuard";
 import { AdminLayout } from "@/components/AdminLayout";
-import { Analytics } from "@/components/Analytics";
 import type { Product, Category } from "@/types/product";
-import dynamic from "next/dynamic";
 
-const DynamicAnalytics = dynamic(() => Promise.resolve(Analytics), {
+// Dynamically import Analytics with SSR disabled to prevent build errors with recharts
+const Analytics = dynamic(() => import("@/components/Analytics").then(mod => ({ default: mod.Analytics })), {
   ssr: false,
   loading: () => (
-    <div className="rounded-lg bg-white border border-stone-200/70 p-6 shadow-sm">
-      <div className="text-stone-600 flex items-center gap-3">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900"></div>
-        Loading analytics...
-      </div>
+    <div className="text-stone-600 flex items-center gap-3">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900"></div>
+      Loading analytics...
     </div>
   ),
 });
@@ -79,7 +77,7 @@ function AnalyticsPageContent() {
         </div>
       ) : (
         <div className="rounded-lg bg-white border border-stone-200/70 p-6 shadow-sm">
-          <DynamicAnalytics products={products} categories={categories} />
+          <Analytics products={products} categories={categories} />
         </div>
       )}
     </div>

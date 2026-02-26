@@ -50,26 +50,46 @@ export function ProductCard({ product }: { product: Product }) {
             ${product.price}
           </span>
         </div>
-        <p className="text-sm text-stone-600">{product.description}</p>
-        <div className="mt-auto flex items-center justify-between gap-3">
-          <div className="flex flex-col items-start gap-1">
-            <span className="text-xs font-semibold text-stone-500">
-              Rating {product.rating.toFixed(1)}
-            </span>
-            <span className="text-xs text-stone-500">
-              {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+        <p className="text-sm text-stone-600 line-clamp-2">{product.description}</p>
+        <div className="mt-auto space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="flex">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className={`text-sm ${
+                    star <= Math.round(product.rating || 0)
+                      ? "text-yellow-500"
+                      : "text-stone-300"
+                  }`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            <span className="text-xs text-stone-600">
+              {product.rating ? product.rating.toFixed(1) : "No ratings"}
             </span>
           </div>
-          <button
-            onClick={(event) => {
-              event.preventDefault();
-              handleAddToCart();
-            }}
-            className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-stone-800 disabled:bg-stone-400"
-            disabled={!product.inStock || product.stock === 0}
-          >
-            {product.inStock && product.stock > 0 ? "Add to cart" : "Sold out"}
-          </button>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs text-stone-600">
+              {product.stock > 0 ? (
+                <span className="text-emerald-700 font-medium">✓ {product.stock} in stock</span>
+              ) : (
+                <span className="text-red-600 font-medium">Out of stock</span>
+              )}
+            </span>
+            <button
+              onClick={(event) => {
+                event.preventDefault();
+                handleAddToCart();
+              }}
+              className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-stone-800 disabled:bg-stone-400 disabled:cursor-not-allowed"
+              disabled={!product.inStock || product.stock === 0}
+            >
+              {product.inStock && product.stock > 0 ? "Add to cart" : "Sold out"}
+            </button>
+          </div>
         </div>
       </div>
     </Link>

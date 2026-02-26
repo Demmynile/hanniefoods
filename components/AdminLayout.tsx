@@ -8,6 +8,7 @@ import {
   FiHome, 
   FiPackage, 
   FiBarChart2, 
+  FiShoppingCart,
   FiLogOut,
   FiMenu,
   FiX
@@ -20,6 +21,7 @@ interface AdminLayoutProps {
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: FiHome },
   { href: "/admin/products", label: "Products", icon: FiPackage },
+  { href: "/admin/orders", label: "Orders", icon: FiShoppingCart },
   { href: "/admin/analytics", label: "Analytics", icon: FiBarChart2 },
 ];
 

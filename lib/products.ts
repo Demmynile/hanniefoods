@@ -37,7 +37,14 @@ export async function getCategories(): Promise<Category[]> {
 
   try {
     const categories = await sanityClient.fetch<Category[]>(categoriesQuery);
-    return categories.length ? categories : fallbackCategories;
+    
+    // Remove duplicate categories by ID
+    const uniqueCategories = categories.reduce((acc: Category[], cat) => {
+      const exists = acc.some(c => (c.id || c.slug) === (cat.id || cat.slug));
+      return exists ? acc : [...acc, cat];
+    }, []);
+    
+    return uniqueCategories.length ? uniqueCategories : fallbackCategories;
   } catch {
     return fallbackCategories;
   }

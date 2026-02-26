@@ -36,6 +36,12 @@ export function FilterPanel({
     { id: "all", title: "All categories", slug: "all" },
     ...(Array.isArray(categories) ? categories : []),
   ];
+  
+  // Remove duplicate categories
+  const uniqueCategoryOptions = categoryOptions.reduce((acc, cat) => {
+    const exists = acc.some(c => (c.id || c.slug) === (cat.id || cat.slug));
+    return exists ? acc : [...acc, cat];
+  }, [] as typeof categoryOptions);
   const [searchInput, setSearchInput] = useState(filters.search);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -82,7 +88,7 @@ export function FilterPanel({
           }
           className="w-full rounded-xl border border-stone-200/70 bg-white px-3 py-2.5 text-sm font-medium text-stone-800 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
         >
-          {categoryOptions.map((category) => (
+          {uniqueCategoryOptions.map((category) => (
             <option key={category.slug} value={category.slug}>
               {category.title}
             </option>
