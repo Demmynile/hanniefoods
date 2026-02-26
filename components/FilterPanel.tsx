@@ -34,7 +34,7 @@ export function FilterPanel({
 }) {
   const categoryOptions = [
     { id: "all", title: "All categories", slug: "all" },
-    ...categories,
+    ...(Array.isArray(categories) ? categories : []),
   ];
   const [searchInput, setSearchInput] = useState(filters.search);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);

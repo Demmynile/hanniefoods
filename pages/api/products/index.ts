@@ -10,7 +10,9 @@ export default async function handler(
   
   if (bypassCache) {
     // No caching for fresh data requests
-    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    response.setHeader("Pragma", "no-cache");
+    response.setHeader("Expires", "0");
   } else {
     // Cache for 30 seconds in browser (short TTL for dynamic data)
     response.setHeader(
@@ -19,13 +21,21 @@ export default async function handler(
     );
   }
   
-  response.setHeader("ETag", `"products-${Date.now()}"`);
+  // Use timestamp-based ETag to invalidate cache
+  const eTag = `"products-${Date.now()}"`;
+  response.setHeader("ETag", eTag);
+
+  if (request.headers["if-none-match"] === eTag && !bypassCache) {
+    response.status(304).end();
+    return;
+  }
 
   try {
-    // Use non-CDN client if bypassing cache
-    const products = bypassCache ? await getProductsNoCache() : await getProducts();
+    // Always use non-CDN client for fresh data to avoid Sanity CDN propagation delays
+    const products = await getProductsNoCache();
     response.status(200).json(products);
   } catch (error) {
+    console.error("Error fetching products:", error);
     response.status(500).json({ error: "Failed to fetch products" });
   }
 }

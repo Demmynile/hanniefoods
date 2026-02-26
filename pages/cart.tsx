@@ -1,8 +1,10 @@
 import { selectCartTotal, useCartStore } from "@/store/cart";
 import { useState } from "react";
 import PaystackCheckout from "@/components/PaystackCheckout";
+import { useUser, SignInButton } from "@clerk/nextjs";
 
 export default function CartPage() {
+  const { user, isLoaded } = useUser();
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
@@ -12,6 +14,7 @@ export default function CartPage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [continueAsGuest, setContinueAsGuest] = useState(false);
 
   if (!items.length) {
     return (
@@ -87,8 +90,63 @@ export default function CartPage() {
           ))}
         </div>
         
-        {/* Customer Information Form */}
-        <div className="rounded-2xl border border-stone-200/80 bg-white/90 backdrop-blur-sm p-6 md:p-8 shadow-lg">
+        {/* Authentication Check */}
+        {isLoaded && !user && !continueAsGuest && (
+          <div className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-white p-6 md:p-8 shadow-lg">
+            <h2 className="mb-4 text-2xl font-semibold text-stone-900 text-center">
+              Checkout Options
+            </h2>
+            <p className="text-sm text-stone-600 text-center mb-6">
+              Sign in for a faster checkout experience, or continue as a guest
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Sign In Option */}
+              <div className="rounded-xl border border-stone-200 bg-white p-6 flex flex-col items-center justify-center text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-stone-900">Sign In</h3>
+                <p className="text-xs text-stone-600">
+                  Track orders and save your info
+                </p>
+                <SignInButton 
+                  mode="redirect" 
+                  redirectUrl="/cart"
+                  signInForceRedirectUrl="/cart"
+                >
+                  <button className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600">
+                    Sign In with Clerk
+                  </button>
+                </SignInButton>
+              </div>
+
+              {/* Guest Option */}
+              <div className="rounded-xl border border-stone-200 bg-white p-6 flex flex-col items-center justify-center text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-stone-900">Continue as Guest</h3>
+                <p className="text-xs text-stone-600">
+                  Quick checkout without an account
+                </p>
+                <button
+                  onClick={() => setContinueAsGuest(true)}
+                  className="w-full rounded-lg border-2 border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold text-stone-900 transition hover:bg-stone-50"
+                >
+                  Continue as Guest
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Customer Information Form - Show if logged in OR guest selected */}
+        {(user || continueAsGuest) && (
+          <div className="rounded-2xl border border-stone-200/80 bg-white/90 backdrop-blur-sm p-6 md:p-8 shadow-lg">
           <h2 className="mb-6 text-2xl font-semibold text-stone-900">Customer Information</h2>
           <div className="space-y-4">
             <div>
@@ -98,11 +156,12 @@ export default function CartPage() {
               <input
                 type="email"
                 id="email"
-                value={email}
+                value={email || user?.primaryEmailAddress?.emailAddress || ""}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your.email@example.com"
                 required
-                className="w-full rounded-xl border border-stone-200/70 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 placeholder-stone-400 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                disabled={!!user?.primaryEmailAddress?.emailAddress}
+                className="w-full rounded-xl border border-stone-200/70 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 placeholder-stone-400 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 disabled:bg-stone-50 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -112,10 +171,11 @@ export default function CartPage() {
               <input
                 type="text"
                 id="name"
-                value={name}
+                value={name || user?.fullName || ""}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className="w-full rounded-xl border border-stone-200/70 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 placeholder-stone-400 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                disabled={!!user?.fullName}
+                className="w-full rounded-xl border border-stone-200/70 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 placeholder-stone-400 outline-none transition hover:border-stone-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 disabled:bg-stone-50 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -133,17 +193,24 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+        )}
         
-        {/* Total and Checkout */}
+        {/* Total and Checkout - Show if logged in OR guest selected */}
+        {(user || continueAsGuest) && (
         <div className="rounded-2xl border border-amber-200/70 bg-gradient-to-br from-amber-50/50 to-white/90 backdrop-blur-sm p-6 md:p-8 shadow-lg">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Order Total</p>
               <p className="text-3xl md:text-4xl font-bold text-stone-900 mt-1">₦{total.toLocaleString()}</p>
             </div>
-            <PaystackCheckout email={email} name={name} phone={phone} />
+            <PaystackCheckout 
+              email={email || user?.primaryEmailAddress?.emailAddress || ""} 
+              name={name || user?.fullName || ""} 
+              phone={phone} 
+            />
           </div>
         </div>
+        )}
       </div>
     </div>
   );
