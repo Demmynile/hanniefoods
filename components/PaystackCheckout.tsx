@@ -83,7 +83,6 @@ export default function PaystackCheckout({ email, name, phone }: PaystackCheckou
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 orderNumber: response.reference,
-                userId: user?.id || null,
                 customerName: name || 'Guest',
                 customerEmail: email,
                 customerPhone: phone || null,

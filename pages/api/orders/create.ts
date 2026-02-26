@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@sanity/client';
+import { getAuth } from '@clerk/nextjs/server';
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
@@ -32,7 +33,6 @@ export default async function handler(
   try {
     const {
       orderNumber,
-      userId,
       customerName,
       customerEmail,
       customerPhone,
@@ -40,6 +40,9 @@ export default async function handler(
       totalAmount,
       paystackReference,
     } = req.body;
+
+    const auth = getAuth(req);
+    const userId = auth.userId || null;
 
     // Validate required fields
     if (!orderNumber || !customerName || !customerEmail || !items || totalAmount === undefined) {
@@ -85,7 +88,7 @@ export default async function handler(
     const order = await client.create({
       _type: 'order',
       orderNumber,
-      userId: userId || null,
+      userId,
       customerName,
       customerEmail,
       customerPhone: customerPhone || null,
@@ -93,6 +96,7 @@ export default async function handler(
       totalAmount,
       paystackReference,
       paymentStatus: 'success',
+      orderStatus: 'paid',
       createdAt: new Date().toISOString(),
     });
 

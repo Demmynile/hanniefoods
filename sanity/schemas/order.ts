@@ -70,6 +70,19 @@ export const order = defineType({
       initialValue: "pending",
     }),
     defineField({
+      name: "orderStatus",
+      title: "Order Status",
+      type: "string",
+      options: {
+        list: [
+          { title: "Pending", value: "pending" },
+          { title: "Paid", value: "paid" },
+          { title: "Delivered", value: "delivered" },
+        ],
+      },
+      initialValue: "pending",
+    }),
+    defineField({
       name: "paystackReference",
       title: "Paystack Reference",
       type: "string",

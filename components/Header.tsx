@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { Menu, X, LogIn, ShoppingCart } from "lucide-react";
+import { Menu, X, LogIn, ShoppingCart, ListOrdered } from "lucide-react";
 import { useCartStore, selectCartCount } from "@/store/cart";
 import { useCartUIStore } from "@/store/cartUI";
-import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
+import { useAuth, useUser, SignInButton, UserButton } from "@clerk/nextjs";
 
 export function Header() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export function Header() {
   const cartCount = selectCartCount(items);
   const openCart = useCartUIStore((state) => state.open);
   const { user } = useUser();
+  const { isSignedIn } = useAuth();
   
   // Hide cart on admin pages
   const isAdminPage = router.pathname.startsWith('/admin');
@@ -37,6 +38,15 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
+          {!isAdminPage && isSignedIn && (
+            <Link
+              href="/orders"
+              className="rounded-lg border border-stone-200/70 bg-white/60 p-2 transition hover:bg-amber-100/70"
+              aria-label="View orders"
+            >
+              <ListOrdered size={20} className="text-stone-700" />
+            </Link>
+          )}
           {!isAdminPage && (
             <button
               onClick={openCart}
