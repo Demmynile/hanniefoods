@@ -9,7 +9,7 @@ export function CategoryPills({
   active: string;
   onChange: (slug: string) => void;
 }) {
-  const allCategories = [{ id: "all", title: "All", slug: "all" }, ...categories];
+  const allCategories = [{ id: "all", title: "All", slug: "all" }, ...(Array.isArray(categories) ? categories : [])];
 
   return (
     <div className="flex flex-wrap gap-2">

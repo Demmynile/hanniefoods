@@ -21,7 +21,13 @@ function ProductsPageContent() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("/api/products");
+      // Always bypass cache on admin page to get fresh data
+      const response = await fetch(`/api/products?t=${Date.now()}`, {
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+        },
+      });
       if (!response.ok) {
         const text = await response.text();
         console.error("API Error:", text);
@@ -79,7 +85,8 @@ function ProductsPageContent() {
   const handleFormSuccess = async (isNew: boolean) => {
     toast.success(isNew ? "Product created!" : "Product updated!");
     handleFormClose();
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Wait 3 seconds for Sanity to complete the publish mutation
+    await new Promise(resolve => setTimeout(resolve, 3000));
     try {
       const response = await fetch(`/api/products?t=${Date.now()}`, {
         headers: {

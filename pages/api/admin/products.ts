@@ -140,6 +140,35 @@ export default async function handler(
       const result = await response.json();
       const documentId = result.results[0]?.id;
 
+      // Publish the product immediately after creating
+      if (documentId) {
+        const publishResponse = await fetch(
+          `https://${projectId}.api.sanity.io/v2024-01-01/data/mutate/${dataset}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              mutations: [
+                {
+                  publish: {
+                    id: documentId,
+                  },
+                },
+              ],
+            }),
+          }
+        );
+
+        if (!publishResponse.ok) {
+          const details = await readSanityError(publishResponse);
+          console.warn("Failed to publish product immediately, it will be published eventually:", details);
+          // Don't fail the request if publish fails, the document is still created
+        }
+      }
+
       return res.status(201).json({
         message: "Product created successfully",
         documentId,
@@ -239,6 +268,33 @@ export default async function handler(
       if (!response.ok) {
         const details = await readSanityError(response);
         throw new Error(details || "Failed to update product");
+      }
+
+      // Publish the updated product immediately
+      const publishResponse = await fetch(
+        `https://${projectId}.api.sanity.io/v2024-01-01/data/mutate/${dataset}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            mutations: [
+              {
+                publish: {
+                  id,
+                },
+              },
+            ],
+          }),
+        }
+      );
+
+      if (!publishResponse.ok) {
+        const details = await readSanityError(publishResponse);
+        console.warn("Failed to publish product immediately, it will be published eventually:", details);
+        // Don't fail the request if publish fails, the document is still updated
       }
 
       return res.status(200).json({

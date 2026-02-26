@@ -11,6 +11,12 @@ export default async function handler(
     "public, s-maxage=3600, stale-while-revalidate=86400, max-age=30"
   );
   
-  const categories = await getCategories();
-  response.status(200).json(categories);
+  try {
+    const categories = await getCategories();
+    // Ensure categories is always an array
+    response.status(200).json(Array.isArray(categories) ? categories : []);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    response.status(500).json({ error: "Failed to fetch categories" });
+  }
 }
