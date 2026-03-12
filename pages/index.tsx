@@ -7,6 +7,7 @@ import { ProductSlider } from "@/components/ProductSlider";
 import { HomeSkeleton } from "@/components/Skeletons";
 import { useProducts } from "@/hooks/useProducts";
 import type { Product } from "@/types/product";
+import { Facebook, Forward, Instagram, MapPin, Phone, Share2, Twitter } from "lucide-react";
 
 const defaultFilters: ProductFilters = {
   search: "",
@@ -15,7 +16,7 @@ const defaultFilters: ProductFilters = {
   sort: "featured",
 };
 
-const pageSize = 6;
+const pageSize = 10;
 
 const matchesPrice = (product: Product, price: string) => {
   if (price === "under-15") return product.price < 15;
@@ -29,6 +30,28 @@ const HomePage = memo(function HomePage() {
   const { products, categories: rawCategories, isLoading } = useProducts();
   const [filters, setFilters] = useState<ProductFilters>(defaultFilters);
   const [page, setPage] = useState(1);
+  const contactLocation = "12 Admiralty Way, Lekki Phase 1, Lagos, Nigeria";
+  const contactPhone = "+234 801 234 5678";
+
+  const contactText = `Contact Hannies Foods\nLocation: ${contactLocation}\nPhone: ${contactPhone}\nInstagram: https://instagram.com/hanniesfoods\nFacebook: https://facebook.com/hanniesfoods\nX: https://x.com/hanniesfoods`;
+
+  const handleShareContact = async () => {
+    if (navigator.share) {
+      await navigator.share({
+        title: "Hannies Foods Contact",
+        text: contactText,
+      });
+      return;
+    }
+
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(contactText);
+      window.alert("Contact details copied to clipboard.");
+      return;
+    }
+
+    window.alert(contactText);
+  };
 
   // Remove duplicate categories
   const categories = useMemo(() => {
@@ -168,6 +191,89 @@ const HomePage = memo(function HomePage() {
                 <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
               </>
             )}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-stone-200/70 bg-white/80 p-6 shadow-xl md:p-8">
+          <div className="flex flex-col gap-6">
+            <h2 className="text-2xl font-semibold text-stone-900 [font-family:var(--font-display)]">
+              Contact Us
+            </h2>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-2xl border border-stone-200/70 bg-white p-4">
+                <p className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-stone-500">
+                  <MapPin size={16} />
+                  Location
+                </p>
+                <p className="text-sm text-stone-700">
+                  {contactLocation}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-stone-200/70 bg-white p-4">
+                <p className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-stone-500">
+                  <Phone size={16} />
+                  Phone
+                </p>
+                <a href="tel:+2348012345678" className="text-sm font-medium text-stone-800 transition hover:text-amber-700">
+                  {contactPhone}
+                </a>
+              </div>
+
+              <div className="rounded-2xl border border-stone-200/70 bg-white p-4 sm:col-span-2 lg:col-span-1">
+                <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-stone-500">
+                  Social Media
+                </p>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-stone-700">
+                  <a
+                    href="https://instagram.com/hanniesfoods"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-3 py-2 transition hover:border-amber-300 hover:text-amber-700"
+                  >
+                    <Instagram size={16} />
+                    @hanniesfoods
+                  </a>
+                  <a
+                    href="https://facebook.com/hanniesfoods"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-3 py-2 transition hover:border-amber-300 hover:text-amber-700"
+                  >
+                    <Facebook size={16} />
+                    Hannies Foods
+                  </a>
+                  <a
+                    href="https://x.com/hanniesfoods"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-3 py-2 transition hover:border-amber-300 hover:text-amber-700"
+                  >
+                    <Twitter size={16} />
+                    @hanniesfoods
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={`mailto:?subject=Hannies Foods Contact Details&body=${encodeURIComponent(contactText)}`}
+                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-amber-300 hover:text-amber-700"
+              >
+                <Forward size={16} />
+                Forward Contact
+              </a>
+              <button
+                type="button"
+                onClick={handleShareContact}
+                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-amber-300 hover:text-amber-700"
+              >
+                <Share2 size={16} />
+                Share Contact
+              </button>
+            </div>
           </div>
         </section>
       </div>
