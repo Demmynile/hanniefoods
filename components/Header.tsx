@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Menu, X, LogIn, ShoppingCart, ListOrdered } from "lucide-react";
@@ -24,9 +25,14 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-amber-200/60 bg-white/95 backdrop-blur-sm px-6 py-4 lg:px-12">
       <div className="flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="text-xl font-bold text-stone-900 [font-family:var(--font-display)]">
-            Hannies
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Hannies logo"
+            width={150}
+            height={50}
+            priority
+            className="h-12 w-auto"
+          />
         </Link>
 
         <nav className="hidden md:flex gap-8 items-center">
