@@ -15,11 +15,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { userId } = getAuth(req);
-  if (!userId || typeof userId !== 'string') {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !process.env.NEXT_PUBLIC_SANITY_DATASET) {
     return res.status(500).json({
       message: 'Server misconfigured: Sanity project configuration is missing',
@@ -27,6 +22,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    const { userId } = getAuth(req);
+    if (!userId || typeof userId !== 'string') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
     res.setHeader('Cache-Control', 'no-store');
     const orders = await client.fetch(
       `*[_type == "order" && userId == $userId] | order(createdAt desc){

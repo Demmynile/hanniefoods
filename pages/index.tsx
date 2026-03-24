@@ -30,28 +30,94 @@ const HomePage = memo(function HomePage() {
   const { products, categories: rawCategories, isLoading } = useProducts();
   const [filters, setFilters] = useState<ProductFilters>(defaultFilters);
   const [page, setPage] = useState(1);
-  const contactLocation = "12 Admiralty Way, Lekki Phase 1, Lagos, Nigeria";
-  const contactPhone = "+234 801 234 5678";
+  const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");
+  const [forwardStatus, setForwardStatus] = useState<"idle" | "opened" | "copied" | "failed">("idle");
+  const contactLocation = "Lane 9 , NO. 14  OLAGBAYE COMMUNITY, BEHIND BEULAH SCHOOL ADEWUMMI";
+  const contactPhone = "+447459270545";
+  const contactUrl = "https://instagram.com/hanniesfoods";
 
   const contactText = `Contact Hannies Foods\nLocation: ${contactLocation}\nPhone: ${contactPhone}\nInstagram: https://instagram.com/hanniesfoods\nFacebook: https://facebook.com/hanniesfoods\nX: https://x.com/hanniesfoods`;
+  const forwardMessage = `${contactText}\n${contactUrl}`;
+
+  const handleForwardContact = async () => {
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(forwardMessage)}`;
+
+    try {
+      const win = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      if (win) {
+        setForwardStatus("opened");
+        return;
+      }
+      // Popup was blocked — fall through to clipboard
+      throw new Error("popup blocked");
+    } catch {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(forwardMessage);
+        setForwardStatus("copied");
+        return;
+      }
+
+      setForwardStatus("failed");
+    }
+  };
 
   const handleShareContact = async () => {
-    if (navigator.share) {
-      await navigator.share({
-        title: "Hannies Foods Contact",
-        text: contactText,
-      });
-      return;
-    }
+    try {
+      if (navigator.share) {
+        const shareData = {
+          title: "Hannies Foods Contact",
+          text: contactText,
+          url: contactUrl,
+        };
 
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(contactText);
-      window.alert("Contact details copied to clipboard.");
-      return;
-    }
+        if (!navigator.canShare || navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          setShareStatus("shared");
+          return;
+        }
+      }
 
-    window.alert(contactText);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(`${contactText}\n${contactUrl}`);
+        setShareStatus("copied");
+        return;
+      }
+
+      window.alert(`${contactText}\n${contactUrl}`);
+      setShareStatus("shared");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setShareStatus("idle");
+        return;
+      }
+
+      setShareStatus("failed");
+    }
   };
+
+  useEffect(() => {
+    if (shareStatus === "idle") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShareStatus("idle");
+    }, 2500);
+
+    return () => window.clearTimeout(timer);
+  }, [shareStatus]);
+
+  useEffect(() => {
+    if (forwardStatus === "idle") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setForwardStatus("idle");
+    }, 2500);
+
+    return () => window.clearTimeout(timer);
+  }, [forwardStatus]);
 
   // Remove duplicate categories
   const categories = useMemo(() => {
@@ -258,20 +324,27 @@ const HomePage = memo(function HomePage() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <a
-                href={`mailto:?subject=Hannies Foods Contact Details&body=${encodeURIComponent(contactText)}`}
+              <button
+                type="button"
+                onClick={handleForwardContact}
                 className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-amber-300 hover:text-amber-700"
               >
                 <Forward size={16} />
-                Forward Contact
-              </a>
+                {forwardStatus === "idle" && "Forward Contact"}
+                {forwardStatus === "opened" && "Opening WhatsApp"}
+                {forwardStatus === "copied" && "Copied to Clipboard"}
+                {forwardStatus === "failed" && "Try Again"}
+              </button>
               <button
                 type="button"
                 onClick={handleShareContact}
                 className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-amber-300 hover:text-amber-700"
               >
                 <Share2 size={16} />
-                Share Contact
+                {shareStatus === "idle" && "Share Contact"}
+                {shareStatus === "shared" && "Shared"}
+                {shareStatus === "copied" && "Copied"}
+                {shareStatus === "failed" && "Try Again"}
               </button>
             </div>
           </div>
