@@ -20,5 +20,6 @@ export const productsQuery = `*[_type == "product"] | order(featured desc, _crea
 export const categoriesQuery = `*[_type == "category"] | order(title asc){
   "id": _id,
   title,
-  "slug": slug.current
+  "slug": slug.current,
+  "image": image.asset->url
 }`;

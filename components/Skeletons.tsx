@@ -19,17 +19,15 @@ export function HomeSkeleton() {
       </section>
       <section className="flex flex-col gap-4">
         <div className="h-8 w-48 bg-stone-200 rounded" />
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-10 w-24 bg-stone-200 rounded-full" />
-          ))}
-        </div>
-      </section>
-      <section className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <div className="h-96 bg-stone-200 rounded-3xl" />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-96 bg-stone-200 rounded-3xl" />
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="overflow-hidden rounded-[2rem] border border-stone-200/80 bg-white/80">
+              <div className="h-64 bg-stone-200" />
+              <div className="space-y-3 p-6">
+                <div className="h-6 w-1/2 bg-stone-200 rounded" />
+                <div className="h-4 w-4/5 bg-stone-200 rounded" />
+              </div>
+            </div>
           ))}
         </div>
       </section>

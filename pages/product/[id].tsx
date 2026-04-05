@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -134,9 +135,12 @@ export default function ProductDetailPage() {
               <h1 className="text-4xl md:text-5xl font-semibold text-stone-900 [font-family:var(--font-display)] leading-tight">
                 {product.title}
               </h1>
-              <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">
+              <Link
+                href={`/category/${product.category.slug}`}
+                className="w-fit text-xs uppercase tracking-widest font-semibold text-stone-600 transition hover:text-amber-700"
+              >
                 {product.category.title}
-              </p>
+              </Link>
             </div>
 
             <p className="text-base text-stone-600 leading-relaxed">{product.description}</p>
