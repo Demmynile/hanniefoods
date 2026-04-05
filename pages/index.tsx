@@ -1,35 +1,12 @@
 import { memo, useEffect, useMemo, useState } from "react";
-import { CategoryPills } from "@/components/CategoryPills";
-import { FilterPanel, type ProductFilters } from "@/components/FilterPanel";
-import { Pagination } from "@/components/Pagination";
-import { ProductGrid } from "@/components/ProductGrid";
+import { CategoryGrid } from "@/components/CategoryGrid";
 import { ProductSlider } from "@/components/ProductSlider";
 import { HomeSkeleton } from "@/components/Skeletons";
 import { useProducts } from "@/hooks/useProducts";
-import type { Product } from "@/types/product";
 import { Facebook, Forward, Instagram, MapPin, Phone, Share2, Twitter } from "lucide-react";
-
-const defaultFilters: ProductFilters = {
-  search: "",
-  category: "all",
-  price: "all",
-  sort: "featured",
-};
-
-const pageSize = 10;
-
-const matchesPrice = (product: Product, price: string) => {
-  if (price === "under-15") return product.price < 15;
-  if (price === "15-30") return product.price >= 15 && product.price <= 30;
-  if (price === "30-60") return product.price >= 30 && product.price <= 60;
-  if (price === "60-plus") return product.price > 60;
-  return true;
-};
 
 const HomePage = memo(function HomePage() {
   const { products, categories: rawCategories, isLoading } = useProducts();
-  const [filters, setFilters] = useState<ProductFilters>(defaultFilters);
-  const [page, setPage] = useState(1);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");
   const [forwardStatus, setForwardStatus] = useState<"idle" | "opened" | "copied" | "failed">("idle");
   const contactLocation = "Lane 9 , NO. 14  OLAGBAYE COMMUNITY, BEHIND BEULAH SCHOOL ADEWUMMI";
@@ -127,52 +104,6 @@ const HomePage = memo(function HomePage() {
     }, [] as typeof rawCategories);
   }, [rawCategories]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [filters]);
-
-  const filteredProducts = useMemo(() => {
-    const normalizedSearch = filters.search.trim().toLowerCase();
-    let filtered = products.filter((product) => {
-      const matchesSearch = normalizedSearch
-        ? product.title.toLowerCase().includes(normalizedSearch)
-        : true;
-      const matchesCategory =
-        filters.category === "all"
-          ? true
-          : product.category.slug === filters.category;
-      const matchesPriceRange = matchesPrice(product, filters.price);
-
-      return matchesSearch && matchesCategory && matchesPriceRange;
-    });
-
-    if (filters.sort === "price-asc") {
-      filtered = [...filtered].sort((a, b) => a.price - b.price);
-    } else if (filters.sort === "price-desc") {
-      filtered = [...filtered].sort((a, b) => b.price - a.price);
-    } else if (filters.sort === "rating") {
-      filtered = [...filtered].sort((a, b) => b.rating - a.rating);
-    } else {
-      filtered = [...filtered].sort((a, b) =>
-        Number(b.featured) - Number(a.featured)
-      );
-    }
-
-    return filtered;
-  }, [products, filters]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
-  const pageItems = useMemo(
-    () => filteredProducts.slice((page - 1) * pageSize, page * pageSize),
-    [filteredProducts, page]
-  );
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
-
   const featuredProducts = useMemo(
     () => products.filter((product) => product.featured).slice(0, 4),
     [products]
@@ -227,37 +158,13 @@ const HomePage = memo(function HomePage() {
               Shop by category
             </h2>
             <span className="text-sm text-stone-500">
-              {products.length} products curated
+              {categories.length} categories available
             </span>
           </div>
-          <CategoryPills
+          <CategoryGrid
             categories={categories}
-            active={filters.category}
-            onChange={(slug) => setFilters({ ...filters, category: slug })}
+            products={products}
           />
-        </section>
-
-        <section className="grid gap-8 lg:grid-cols-[260px_1fr]">
-          <aside className="lg:sticky lg:top-28 lg:self-start">
-            <FilterPanel categories={categories} filters={filters} onChange={setFilters} />
-          </aside>
-          <div className="flex flex-col gap-6">
-            {products.length === 0 ? (
-              <div className="flex items-center justify-center min-h-96 text-stone-500">
-                <p className="text-lg">No product found</p>
-              </div>
-            ) : filteredProducts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-96 text-stone-500">
-                <p className="text-8xl mb-4">😢</p>
-                <p className="text-lg">Filtered product not found</p>
-              </div>
-            ) : (
-              <>
-                <ProductGrid products={pageItems} />
-                <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-              </>
-            )}
-          </div>
         </section>
 
         <section className="rounded-3xl border border-stone-200/70 bg-white/80 p-6 shadow-xl md:p-8">

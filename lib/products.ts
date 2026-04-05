@@ -37,17 +37,43 @@ export async function getCategories(): Promise<Category[]> {
 
   try {
     const categories = await sanityClient.fetch<Category[]>(categoriesQuery);
+    const products = await getProducts();
+    const categoryImages = new Map(
+      products
+        .filter((product) => product.category.slug && product.images?.[0])
+        .map((product) => [product.category.slug as string, product.images?.[0] ?? null])
+    );
     
     // Remove duplicate categories by ID
     const uniqueCategories = categories.reduce((acc: Category[], cat) => {
       const exists = acc.some(c => (c.id || c.slug) === (cat.id || cat.slug));
-      return exists ? acc : [...acc, cat];
+      if (exists) {
+        return acc;
+      }
+
+      return [
+        ...acc,
+        {
+          ...cat,
+          image: cat.image ?? (cat.slug ? categoryImages.get(cat.slug) ?? null : null),
+        },
+      ];
     }, []);
     
     return uniqueCategories.length ? uniqueCategories : fallbackCategories;
   } catch {
     return fallbackCategories;
   }
+}
+
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const categories = await getCategories();
+  return categories.find((category) => category.slug === slug) ?? null;
+}
+
+export async function getProductsByCategorySlug(slug: string): Promise<Product[]> {
+  const products = await getProducts();
+  return products.filter((product) => product.category.slug === slug);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {

@@ -1,9 +1,9 @@
 import type { Category, Product } from "@/types/product";
 
 export const categories: Category[] = [
-  { id: "cat-pantry", title: "Pantry", slug: "pantry" },
-  { id: "cat-fresh", title: "Fresh", slug: "fresh" },
-  { id: "cat-meals", title: "Ready Meals", slug: "ready-meals" },
+  { id: "cat-pantry", title: "Pantry", slug: "pantry", image: null },
+  { id: "cat-fresh", title: "Fresh", slug: "fresh", image: null },
+  { id: "cat-meals", title: "Ready Meals", slug: "ready-meals", image: null },
 ];
 
 export const products: Product[] = [
