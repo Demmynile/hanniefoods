@@ -8,6 +8,8 @@ import { ProductGrid } from "@/components/ProductGrid";
 import ProductReviews from "@/components/ProductReviews";
 import { useProducts } from "@/hooks/useProducts";
 import { useCartStore } from "@/store/cart";
+import { useCurrencyStore } from "@/store/currency";
+import { formatPrice } from "@/lib/currency";
 import type { Product } from "@/types/product";
 
 export default function ProductDetailPage() {
@@ -23,6 +25,7 @@ export default function ProductDetailPage() {
   const items = useCartStore((state) => state.items);
   const addItem = useCartStore((state) => state.addItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const currency = useCurrencyStore((state) => state.currency);
 
   useEffect(() => {
     if (!id) {
@@ -149,7 +152,7 @@ export default function ProductDetailPage() {
               <div className="rounded-xl bg-amber-100/60 border border-amber-200/70 px-4 py-2.5">
                 <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Price</p>
                 <p className="text-2xl md:text-3xl font-bold text-stone-900 mt-1">
-                  ₦{product.price.toLocaleString()}
+                  {formatPrice(product.price, currency)}
                 </p>
               </div>
               <div>

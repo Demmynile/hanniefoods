@@ -4,6 +4,8 @@ import PaystackCheckout from "@/components/PaystackCheckout";
 import { useUser, SignInButton } from "@clerk/nextjs";
 import { ProductSlider } from "@/components/ProductSlider";
 import { useProducts } from "@/hooks/useProducts";
+import { useCurrencyStore } from "@/store/currency";
+import { formatPrice } from "@/lib/currency";
 
 export default function CartPage() {
   const { user, isLoaded } = useUser();
@@ -13,6 +15,7 @@ export default function CartPage() {
   const removeItem = useCartStore((state) => state.removeItem);
   const clear = useCartStore((state) => state.clear);
   const total = selectCartTotal(items);
+  const currency = useCurrencyStore((state) => state.currency);
   
   // Get featured products for recommendations, or just take first 4 if none featured
   const featuredProducts = products.filter((product) => product.featured).length > 0
@@ -94,7 +97,7 @@ export default function CartPage() {
                     {item.product.title}
                   </p>
                   <p className="text-sm text-stone-600 mt-1">
-                    ₦{item.product.price.toLocaleString()} × {item.quantity}
+                    {formatPrice(item.product.price, currency)} × {item.quantity}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -238,7 +241,7 @@ export default function CartPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-widest font-semibold text-stone-600">Order Total</p>
-              <p className="text-3xl md:text-4xl font-bold text-stone-900 mt-1">₦{total.toLocaleString()}</p>
+              <p className="text-3xl md:text-4xl font-bold text-stone-900 mt-1">{formatPrice(total, currency)}</p>
             </div>
             <PaystackCheckout 
               email={email || user?.primaryEmailAddress?.emailAddress || ""} 

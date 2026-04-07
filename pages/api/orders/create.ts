@@ -1,6 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@sanity/client';
 import { getAuth } from '@clerk/nextjs/server';
+import { DEFAULT_CURRENCY, type CurrencyCode } from '@/lib/currency';
+
+const SUPPORTED_CURRENCIES: CurrencyCode[] = ['NGN', 'GBP', 'USD', 'CAD', 'AUD'];
+
+function isCurrencyCode(value: unknown): value is CurrencyCode {
+  return typeof value === 'string' && SUPPORTED_CURRENCIES.includes(value as CurrencyCode);
+}
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
@@ -38,6 +45,7 @@ export default async function handler(
       customerPhone,
       items,
       totalAmount,
+      currency,
       paystackReference,
     } = req.body;
 
@@ -53,8 +61,29 @@ export default async function handler(
       return res.status(400).json({ message: 'Order items are required' });
     }
 
+    if (currency !== undefined && !isCurrencyCode(currency)) {
+      return res.status(400).json({
+        message: `Invalid currency: ${String(currency)}. Allowed: ${SUPPORTED_CURRENCIES.join(', ')}`,
+      });
+    }
+
+    const invalidItem = items.find(
+      (item) => item.currency !== undefined && !isCurrencyCode(item.currency)
+    );
+    if (invalidItem) {
+      return res.status(400).json({
+        message: `Invalid item currency for ${invalidItem.title || 'order item'}: ${String(invalidItem.currency)}. Allowed: ${SUPPORTED_CURRENCIES.join(', ')}`,
+      });
+    }
+
+    const normalizedCurrency: CurrencyCode = isCurrencyCode(currency) ? currency : DEFAULT_CURRENCY;
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      currency: isCurrencyCode(item.currency) ? item.currency : normalizedCurrency,
+    }));
+
     // Update stock for each product
-    for (const item of items) {
+    for (const item of normalizedItems) {
       const product = await client.fetch(
         `*[_type == "product" && _id == $productId][0]{ _id, stock }`,
         { productId: item.productId }
@@ -92,7 +121,8 @@ export default async function handler(
       customerName,
       customerEmail,
       customerPhone: customerPhone || null,
-      items,
+      currency: normalizedCurrency,
+      items: normalizedItems,
       totalAmount,
       paystackReference,
       paymentStatus: 'success',

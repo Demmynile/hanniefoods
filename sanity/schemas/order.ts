@@ -35,6 +35,13 @@ export const order = defineType({
       type: "string",
     }),
     defineField({
+      name: "currency",
+      title: "Order Currency",
+      type: "string",
+      initialValue: "NGN",
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: "items",
       title: "Order Items",
       type: "array",
@@ -46,6 +53,7 @@ export const order = defineType({
             { name: "title", type: "string", title: "Product Title" },
             { name: "price", type: "number", title: "Price" },
             { name: "quantity", type: "number", title: "Quantity" },
+            { name: "currency", type: "string", title: "Currency", initialValue: "NGN" },
           ],
         },
       ],
