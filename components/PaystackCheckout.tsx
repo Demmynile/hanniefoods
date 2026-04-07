@@ -3,7 +3,7 @@ import { useCartStore, selectCartTotal } from '@/store/cart';
 import { toast } from 'sonner';
 import { CurrencySelector } from '@/components/CurrencySelector';
 import { useCurrencyStore } from '@/store/currency';
-import { formatPrice } from '@/lib/currency';
+import { DEFAULT_CURRENCY, formatPrice } from '@/lib/currency';
 
 interface PaystackCheckoutProps {
   email: string;
@@ -17,6 +17,8 @@ export default function PaystackCheckout({ email, name, phone }: PaystackCheckou
   const clear = useCartStore((state) => state.clear);
   const total = selectCartTotal(items);
   const currency = useCurrencyStore((state) => state.currency);
+  const chargedCurrency = DEFAULT_CURRENCY;
+  const chargedAmountLabel = formatPrice(total, chargedCurrency);
 
   const handleCheckout = () => {
     if (error) {
@@ -74,6 +76,7 @@ export default function PaystackCheckout({ email, name, phone }: PaystackCheckou
           title: item.product.title,
           quantity: item.quantity,
           price: item.product.price,
+          currency: chargedCurrency,
         })),
       },
       callback: async (response: PaystackResponse) => {
@@ -93,8 +96,10 @@ export default function PaystackCheckout({ email, name, phone }: PaystackCheckou
                   title: item.product.title,
                   price: item.product.price,
                   quantity: item.quantity,
+                  currency: chargedCurrency,
                 })),
                 totalAmount: total,
+                currency: chargedCurrency,
                 paystackReference: response.reference,
               }),
             });
@@ -145,7 +150,7 @@ export default function PaystackCheckout({ email, name, phone }: PaystackCheckou
         disabled={!loaded || items.length === 0 || !!error}
         className="w-full rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {error ? 'Payment Error - Try Refreshing' : loaded ? `Pay ${formatPrice(total, currency)}` : 'Loading payment system...'}
+        {error ? 'Payment Error - Try Refreshing' : loaded ? `Pay ${chargedAmountLabel}` : 'Loading payment system...'}
       </button>
 
       {currency !== 'NGN' && (
@@ -164,7 +169,7 @@ export default function PaystackCheckout({ email, name, phone }: PaystackCheckou
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 space-y-2">
           <div className="flex items-start gap-2">
-            <svg className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5 text-red-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div className="flex-1">

@@ -35,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         customerName,
         customerEmail,
         customerPhone,
+        currency,
         items,
         totalAmount,
         paymentStatus,

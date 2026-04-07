@@ -225,7 +225,7 @@ function OrdersPageContent() {
               </div>
 
               <div className="hidden overflow-x-auto md:block">
-                <table className="w-full min-w-245">
+                <table className="w-full min-w-61.25">
                 <thead className="border-b border-stone-200 bg-stone-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-stone-900">Order</th>

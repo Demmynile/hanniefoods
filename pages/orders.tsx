@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useUser, SignInButton } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { Pagination } from "@/components/Pagination";
-import { useCurrencyStore } from "@/store/currency";
-import { formatPrice } from "@/lib/currency";
+import { DEFAULT_CURRENCY, formatPrice, type CurrencyCode } from "@/lib/currency";
 
 interface OrderItem {
   productId: string;
   title: string;
   price: number;
   quantity: number;
+  currency?: CurrencyCode;
 }
 
 interface Order {
@@ -18,6 +18,7 @@ interface Order {
   customerName: string;
   customerEmail: string;
   customerPhone?: string | null;
+  currency?: CurrencyCode;
   items: OrderItem[];
   totalAmount: number;
   paymentStatus: string;
@@ -36,7 +37,6 @@ const statusStyles: Record<string, string> = {
 
 export default function OrdersPage() {
   const { user, isLoaded } = useUser();
-  const currency = useCurrencyStore((state) => state.currency);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -179,7 +179,7 @@ export default function OrdersPage() {
                         <span>
                           {item.title} x{item.quantity}
                         </span>
-                        <span>{formatPrice(item.price * item.quantity, currency)}</span>
+                        <span>{formatPrice(item.price * item.quantity, item.currency || order.currency || DEFAULT_CURRENCY)}</span>
                       </div>
                     ))}
                   </div>
@@ -195,7 +195,7 @@ export default function OrdersPage() {
                   <div className="text-right">
                     <p className="text-xs uppercase tracking-widest text-stone-500">Total</p>
                     <p className="text-xl font-semibold text-stone-900">
-                      {formatPrice(order.totalAmount, currency)}
+                      {formatPrice(order.totalAmount, order.currency || DEFAULT_CURRENCY)}
                     </p>
                     {order.paystackReference ? (
                       <p className="text-xs text-stone-500">Ref: {order.paystackReference}</p>
