@@ -1,7 +1,11 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import type { Product } from "@/types/product";
+import { formatPrice } from "@/lib/currency";
+import { useCurrencyStore } from "@/store/currency";
 
 export const ProductSlider = memo(function ProductSlider({ products }: { products: Product[] }) {
+  const currency = useCurrencyStore((state) => state.currency);
+
   // Filter to only show products with images
   const productsWithImages = useMemo(
     () => products.filter((product) => product.images && product.images.length > 0 && product.images[0]),
@@ -51,7 +55,7 @@ export const ProductSlider = memo(function ProductSlider({ products }: { product
             <p className="text-sm text-stone-600 line-clamp-2">{activeProduct.description}</p>
             <div className="flex items-center gap-3 flex-wrap">
               <span className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition-transform hover:scale-105">
-                ₦{activeProduct.price.toLocaleString()}
+                {formatPrice(activeProduct.price, currency)}
               </span>
               {activeProduct.badge && (
                 <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white">

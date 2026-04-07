@@ -5,6 +5,8 @@ import Image from "next/image";
 import { X, Trash2, Plus, Minus } from "lucide-react";
 import { useCartStore, selectCartTotal } from "@/store/cart";
 import { useCartUIStore } from "@/store/cartUI";
+import { useCurrencyStore } from "@/store/currency";
+import { formatPrice } from "@/lib/currency";
 
 export function CartModal() {
   const isOpen = useCartUIStore((state) => state.isOpen);
@@ -13,6 +15,7 @@ export function CartModal() {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
   const clear = useCartStore((state) => state.clear);
+  const currency = useCurrencyStore((state) => state.currency);
 
   const total = selectCartTotal(items);
 
@@ -75,7 +78,7 @@ export function CartModal() {
                       >
                         {item.product.title}
                       </Link>
-                      <span className="text-xs text-stone-500">${item.product.price}</span>
+                      <span className="text-xs text-stone-500">{formatPrice(item.product.price, currency)}</span>
 
                       <div className="flex items-center gap-2">
                         <button
@@ -117,7 +120,7 @@ export function CartModal() {
               <div className="flex items-center justify-between gap-2 mb-4">
                 <span className="text-lg font-semibold text-stone-900">Total:</span>
                 <span className="text-2xl font-bold text-amber-700">
-                  ${total.toFixed(2)}
+                  {formatPrice(total, currency)}
                 </span>
               </div>
 

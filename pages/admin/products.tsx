@@ -175,8 +175,62 @@ function ProductsPageContent() {
         <div className="rounded-lg bg-white border border-stone-200/70 shadow-sm overflow-hidden">
           {products.length > 0 ? (
             <div>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-160">
+              <div className="divide-y divide-stone-100 md:hidden">
+                {pagedProducts.map((product) => (
+                  <div key={product.id} className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      {product.images?.[0] ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.title}
+                          className="h-14 w-14 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-stone-100 text-xs text-stone-500">
+                          No image
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-stone-900">{product.title}</p>
+                        <p className="text-sm text-stone-600">₦{product.price.toLocaleString()}</p>
+                        <p className="text-xs text-stone-500">Stock: {product.stock} • Rating: {product.rating}⭐</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      {product.stock > 0 ? (
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+                          In Stock
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
+                          Out of Stock
+                        </span>
+                      )}
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditClick(product)}
+                          className="rounded-lg bg-blue-100 p-2 text-blue-700 hover:bg-blue-200 transition-colors"
+                          title="Edit product"
+                        >
+                          <FiEdit2 size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(product.id, product.title)}
+                          className="rounded-lg bg-red-100 p-2 text-red-700 hover:bg-red-200 transition-colors"
+                          title="Delete product"
+                        >
+                          <FiTrash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full min-w-190">
                   <thead className="border-b border-stone-200 bg-stone-50">
                     <tr>
                       <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-stone-900">
@@ -191,10 +245,10 @@ function ProductsPageContent() {
                       <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-stone-900">
                         Stock
                       </th>
-                      <th className="hidden sm:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-stone-900">
+                      <th className="hidden lg:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-stone-900">
                         Rating
                       </th>
-                      <th className="hidden lg:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-stone-900">
+                      <th className="hidden xl:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-stone-900">
                         Status
                       </th>
                       <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-stone-900">
@@ -232,10 +286,10 @@ function ProductsPageContent() {
                         <td className="px-3 md:px-6 py-3 text-xs md:text-sm text-stone-600">
                           {product.stock}
                         </td>
-                        <td className="hidden sm:table-cell px-3 md:px-6 py-3 text-xs md:text-sm text-stone-600">
+                        <td className="hidden lg:table-cell px-3 md:px-6 py-3 text-xs md:text-sm text-stone-600">
                           {product.rating}⭐
                         </td>
-                        <td className="hidden lg:table-cell px-3 md:px-6 py-3 text-xs md:text-sm">
+                        <td className="hidden xl:table-cell px-3 md:px-6 py-3 text-xs md:text-sm">
                           {product.stock > 0 ? (
                             <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
                               In Stock

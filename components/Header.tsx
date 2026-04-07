@@ -8,6 +8,7 @@ import { Menu, X, LogIn, ShoppingCart, ListOrdered } from "lucide-react";
 import { useCartStore, selectCartCount } from "@/store/cart";
 import { useCartUIStore } from "@/store/cartUI";
 import { useAuth, useUser, SignInButton, UserButton } from "@clerk/nextjs";
+import { CurrencySelector } from "@/components/CurrencySelector";
 
 export function Header() {
   const router = useRouter();
@@ -44,6 +45,11 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
+          {!isAdminPage && (
+            <div className="hidden md:block w-52">
+              <CurrencySelector showLabel={false} />
+            </div>
+          )}
           {!isAdminPage && isSignedIn && (
             <Link
               href="/orders"
@@ -96,6 +102,11 @@ export function Header() {
 
       {isMenuOpen && (
         <nav className="md:hidden flex flex-col gap-3 pt-4 border-t border-amber-200/60 mt-4">
+          {!isAdminPage && (
+            <div className="pb-3 border-b border-amber-200/60">
+              <CurrencySelector />
+            </div>
+          )}
           {user?.publicMetadata?.role === "admin" && (
             <Link href="/admin" className="text-stone-600 hover:text-stone-900 transition py-2">
               Admin

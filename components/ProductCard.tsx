@@ -3,9 +3,12 @@ import Image from "next/image";
 import { toast } from "sonner";
 import type { Product } from "@/types/product";
 import { useCartStore } from "@/store/cart";
+import { formatPrice } from "@/lib/currency";
+import { useCurrencyStore } from "@/store/currency";
 
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem);
+  const currency = useCurrencyStore((state) => state.currency);
 
   const handleAddToCart = () => {
     addItem(product);
@@ -47,7 +50,7 @@ export function ProductCard({ product }: { product: Product }) {
             {product.title}
           </span>
           <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-stone-900">
-            ${product.price}
+            {formatPrice(product.price, currency)}
           </span>
         </div>
         <p className="text-sm text-stone-600 line-clamp-2">{product.description}</p>

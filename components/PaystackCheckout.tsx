@@ -1,7 +1,9 @@
 import { usePaystack, type PaystackConfig, type PaystackResponse } from '@/hooks/usePaystack';
 import { useCartStore, selectCartTotal } from '@/store/cart';
 import { toast } from 'sonner';
-import { useUser } from '@clerk/nextjs';
+import { CurrencySelector } from '@/components/CurrencySelector';
+import { useCurrencyStore } from '@/store/currency';
+import { formatPrice } from '@/lib/currency';
 
 interface PaystackCheckoutProps {
   email: string;
@@ -10,11 +12,11 @@ interface PaystackCheckoutProps {
 }
 
 export default function PaystackCheckout({ email, name, phone }: PaystackCheckoutProps) {
-  const { user } = useUser();
   const { loaded, initializePayment, error } = usePaystack();
   const items = useCartStore((state) => state.items);
   const clear = useCartStore((state) => state.clear);
   const total = selectCartTotal(items);
+  const currency = useCurrencyStore((state) => state.currency);
 
   const handleCheckout = () => {
     if (error) {
@@ -136,13 +138,21 @@ export default function PaystackCheckout({ email, name, phone }: PaystackCheckou
 
   return (
     <div className="space-y-3">
+      <CurrencySelector />
+
       <button
         onClick={handleCheckout}
         disabled={!loaded || items.length === 0 || !!error}
         className="w-full rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {error ? 'Payment Error - Try Refreshing' : loaded ? `Pay ₦${total.toLocaleString()}` : 'Loading payment system...'}
+        {error ? 'Payment Error - Try Refreshing' : loaded ? `Pay ${formatPrice(total, currency)}` : 'Loading payment system...'}
       </button>
+
+      {currency !== 'NGN' && (
+        <p className="text-xs text-stone-500">
+          Payment is processed in NGN at checkout.
+        </p>
+      )}
       
       {!loaded && !error && (
         <div className="flex items-center justify-center gap-2 text-sm text-stone-600">
