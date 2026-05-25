@@ -37,3 +37,69 @@ img {
 button {
   font-family: inherit;
 }
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatYReverse {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(12px);
+  }
+}
+
+@keyframes driftX {
+  0%,
+  100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(16px);
+  }
+}
+
+.motion-rise-in {
+  animation: riseIn 700ms cubic-bezier(0.2, 0.65, 0.2, 1) both;
+}
+
+.motion-float-slow {
+  animation: floatY 5200ms ease-in-out infinite;
+}
+
+.motion-float-reverse {
+  animation: floatYReverse 5800ms ease-in-out infinite;
+}
+
+.motion-drift-x {
+  animation: driftX 7600ms ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-rise-in,
+  .motion-float-slow,
+  .motion-float-reverse,
+  .motion-drift-x {
+    animation: none !important;
+  }
+}

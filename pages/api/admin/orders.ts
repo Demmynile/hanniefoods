@@ -12,6 +12,7 @@ const client = createClient({
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   let userId: string | null = null;
+  let hasSessionToken = false;
 
   try {
     const authResult = getAuth(req);
@@ -21,9 +22,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!sessionToken) {
       return res.status(401).json({ error: "Not authenticated - please sign in" });
     }
+    hasSessionToken = true;
   }
 
-  if (!userId) {
+  if (!userId && !hasSessionToken) {
     return res.status(401).json({ error: "Not authenticated - please sign in" });
   }
 
